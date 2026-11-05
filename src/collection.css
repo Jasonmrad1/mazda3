@@ -153,6 +153,16 @@ dialog.modal[open]::backdrop { animation: backdropEnter .28s ease both; }
 .toast, .offline-banner, .app-update-banner { animation: garageContentEnter .34s cubic-bezier(.2,.75,.25,1) both; }
 .notification-button i { animation: reminderGlow 2.8s ease-in-out infinite; }
 .chart-tooltip, .recharts-tooltip-wrapper { transition: opacity .18s ease; }
+.studio-source > span > a { display:none; }
+.studio-credit { position:relative; z-index:12; }
+.studio-credit > summary { list-style:none; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.studio-credit > summary::-webkit-details-marker { display:none; }
+.studio-credit > summary:after { content:" ↗"; opacity:.7; }
+.studio-credit > div { position:absolute; left:0; bottom:calc(100% + 12px); width:min(290px, calc(100vw - 44px)); padding:17px 18px; background:#151515f5; color:#dededb; border:1px solid #454545; box-shadow:0 18px 55px #000a; line-height:1.7; backdrop-filter:blur(16px); }
+.studio-credit > div:after { content:""; position:absolute; left:18px; bottom:-5px; width:8px; height:8px; background:#151515; border-right:1px solid #454545; border-bottom:1px solid #454545; transform:rotate(45deg); }
+.studio-credit > div strong { font-size:10px; font-weight:500; }
+.studio-credit > div p { margin:6px 0 10px; color:#999; font-size:9px; }
+.studio-credit > div a { display:inline-flex; align-items:center; gap:5px; color:#ddd; font-size:9px; text-decoration:underline; text-underline-offset:3px; }
 @media (hover:none) {
   .bottom-nav > button:hover { transform:none; }
   .bottom-nav > button.active svg { animation:none; }

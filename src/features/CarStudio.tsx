@@ -121,6 +121,9 @@ export function CarStudio({
           transparent: 1,
           ui_infos: 0,
           ui_hint: 0,
+          // Supported only on eligible Sketchfab plans. Preserve creator
+          // credit in the local model-credit popover below.
+          ui_watermark: 0,
           ui_animations: 0,
           ui_help: 0,
           ui_settings: 0,
@@ -429,7 +432,16 @@ export function CarStudio({
       <div className="studio-source">
         <span>
           <Box size={13} />
-          Reference model by{" "}
+          <details className="studio-credit">
+            <summary>3D model credit</summary>
+            <div>
+              <strong>Reference model by {referenceModel.author}</strong>
+              <p>2019 Mazda3 BP Hatchback reference · hosted by Sketchfab.</p>
+              <a href={referenceModel.url} target="_blank" rel="noreferrer">
+                View original model <ArrowUpRight size={12} />
+              </a>
+            </div>
+          </details>
           <a href={referenceModel.url} target="_blank" rel="noreferrer">
             {referenceModel.author} · Sketchfab
             <ArrowUpRight size={12} />

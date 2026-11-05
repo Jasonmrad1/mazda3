@@ -2,6 +2,9 @@ import { test, expect, type Page } from "@playwright/test";
 async function begin(page: Page) {
   await page.goto("/");
   await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Explore first", exact: true })
     .click();
   await expect(
@@ -41,8 +44,8 @@ test("records oil service and recalculates next due thresholds", async ({
   await page.getByRole("button", { name: "Save record", exact: true }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page
-    .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: /^Care/ })
+    .getByRole("navigation", { name: "Showroom navigation" })
+    .getByRole("button", { name: "Care", exact: true })
     .click();
   await expect(
     page.getByText("42,000 mi", { exact: false }).first(),

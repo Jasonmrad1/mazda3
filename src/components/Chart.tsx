@@ -66,7 +66,7 @@ export function TrendChart({
             {parts}
             <Bar
               dataKey="value"
-              fill="#a83443"
+              fill="#4e4e4e"
               radius={[5, 5, 0, 0]}
               maxBarSize={38}
             />
@@ -75,18 +75,18 @@ export function TrendChart({
           <AreaChart {...common}>
             <defs>
               <linearGradient id="fuelGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#bb4e59" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="#bb4e59" stopOpacity={0} />
+                <stop offset="0%" stopColor="#666666" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#666666" stopOpacity={0} />
               </linearGradient>
             </defs>
             {parts}
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#c56972"
+              stroke="#7d7d7d"
               strokeWidth={2.5}
               fill="url(#fuelGradient)"
-              dot={{ r: 3, fill: "#c56972" }}
+              dot={{ r: 3, fill: "#7d7d7d" }}
               isAnimationActive={
                 !matchMedia("(prefers-reduced-motion: reduce)").matches
               }

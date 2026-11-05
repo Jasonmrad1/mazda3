@@ -45,6 +45,7 @@ import {
 } from "../components/ui";
 import { TireVisual } from "./Tires";
 import { CarStudio } from "./CarStudio";
+import { ShowroomHero } from "./ShowroomHero";
 
 export function CareRow({ due, open }: { due: Deadline; open: OpenModal }) {
   const { data } = useGarage();
@@ -116,7 +117,7 @@ export function Home({
   navigate: (tab: Tab, section?: string) => void;
 }) {
   const { data, update } = useGarage();
-  const [showcase, setShowcase] = useState<"photos" | "3d">("photos");
+  const [showcase, setShowcase] = useState<"photos" | "3d">("3d");
   const unit = data.vehicle.unit,
     meters = displayMeters(data),
     confirmed = confirmedMeters(data) !== null;
@@ -164,325 +165,344 @@ export function Home({
     });
   const distance = observedMonthlyDistance(data);
   return (
-    <div className="page home-page">
-      <div className="page-heading">
-        <div>
-          <span className="eyebrow">A LITTLE CARE. A LONG WAY.</span>
-          <h1>
-            Every mile, considered<span className="red-dot">.</span>
-          </h1>
-          <p>Your Mazda. Everything you need, beautifully in reach.</p>
-        </div>
-        <span className="mazda-signature">
-          MAZDA<span>CRAFTED AROUND YOU</span>
-        </span>
-      </div>
-      <div className="showcase-toolbar">
-        <span>
-          <span className="showcase-small-line" />
-          {data.vehicle.specs.Year} MAZDA3
-          <span className="showcase-subtitle">YOUR PERSONAL GARAGE</span>
-        </span>
-        <div className="showcase-switch" aria-label="Car showcase view">
-          <button
-            className={showcase === "photos" ? "active" : ""}
-            aria-pressed={showcase === "photos"}
-            onClick={() => setShowcase("photos")}
-          >
-            <Camera size={15} />
-            My photos
-          </button>
-          <button
-            className={showcase === "3d" ? "active" : ""}
-            aria-pressed={showcase === "3d"}
-            onClick={() => setShowcase("3d")}
-          >
-            <Box size={15} />
-            Explore in 3D
-          </button>
-        </div>
-      </div>
-      {showcase === "3d" ? (
-        <CarStudio onPhotos={() => setShowcase("photos")} />
-      ) : (
-        <section className="car-hero" aria-label="Your Mazda3 showcase">
-          <div
-            className="hero-photo"
-            key={data.vehicle.photo || data.vehicle.photoIndex}
-          >
-            <img
-              src={data.vehicle.photo || photos[data.vehicle.photoIndex]}
-              alt="Your actual black 2019 Mazda3 Hatchback"
-            />
-          </div>
-          <div className="hero-scrim" />
-          <div className="hero-content">
-            <Badge tone="glass">THE ART OF MOVING YOU</Badge>
-            <p className="hero-year">
-              {data.vehicle.specs.Year} ·{" "}
-              {data.vehicle.specs.Manufacturer.toUpperCase()}
-            </p>
-            <h2>
-              {data.vehicle.specs.Model.split(" ")[0]}
-              <br />
-              <span>
-                {data.vehicle.specs.Model.replace(/^\S+\s*/, "").toUpperCase()}
-              </span>
-            </h2>
-            <p className="hero-engine">
-              {data.vehicle.specs.Engine.split(" naturally")[0]}
-            </p>
-            <div className="hero-color">
-              <i />
-              {data.vehicle.specs.Exterior}
-              <span> / </span>
-              {data.vehicle.specs.Interior} interior
-            </div>
-            <button
-              className="hero-details"
-              onClick={() => open({ type: "profile" })}
-            >
-              Explore your car
-              <ArrowUpRight size={17} />
-            </button>
-          </div>
-          <div className="hero-top-right">
-            <MapPin size={13} />
-            {data.vehicle.specs.Country}
-          </div>
-          <div className="hero-gallery">
-            <button
-              aria-label="Previous car photo"
-              onClick={() =>
-                void update((d) => {
-                  d.vehicle.photo = "";
-                  d.vehicle.photoIndex = (d.vehicle.photoIndex + 3) % 4;
-                })
-              }
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <span>
-              {String(data.vehicle.photoIndex + 1).padStart(2, "0")}
-              <i>/</i>04
-            </span>
-            <button
-              aria-label="Next car photo"
-              onClick={() =>
-                void update((d) => {
-                  d.vehicle.photo = "";
-                  d.vehicle.photoIndex = (d.vehicle.photoIndex + 1) % 4;
-                })
-              }
-            >
-              <ChevronRight size={16} />
-            </button>
-            <button
-              aria-label="Change car photograph"
-              onClick={() => open({ type: "profile" })}
-            >
-              <Camera size={16} />
-            </button>
-          </div>
-          <div className="hero-caption">
-            <span className="tiny-line" />
-            THE BEAUTY OF OWNERSHIP
-          </div>
-        </section>
-      )}
-      <div className="dashboard-stats home-vital-stats">
-        <button
-          className="stat-card odometer-stat"
-          onClick={() => open({ type: "mileage" })}
-        >
-          <div className="stat-label">
-            CURRENT ODOMETER
-            <Gauge size={17} />
-          </div>
-          <div className="stat-value">
-            {meters === null
-              ? "—"
-              : `${!confirmed ? "~" : ""}${fromMeters(meters, unit).toLocaleString("en-US", { maximumFractionDigits: 0 })}`}
-            <span>{unit}</span>
-          </div>
-          <p>
-            {confirmed
-              ? "User-recorded reading"
-              : "Approximate · confirm your reading"}
-            <ArrowUpRight size={13} />
-          </p>
-        </button>
-        <button
-          className="stat-card care-stat"
-          onClick={() => navigate("care")}
-        >
-          <div className="stat-label">
-            CARE STATUS
-            <ShieldCheck size={17} />
-          </div>
-          <div className="status-value">
-            <i className={careComplete ? "green" : "amber"} />
-            {careComplete ? "Recorded care current" : "History incomplete"}
-          </div>
-          <p>
-            {careComplete
-              ? "Based on your service records"
-              : "Add records to build your care picture"}
-            <ChevronRight size={13} />
-          </p>
-        </button>
-        <Stat
-          label="AVERAGE ECONOMY"
-          value={
-            consumption === null ? "—" : (235.214583 / consumption).toFixed(1)
-          }
-          unit="MPG"
-          detail={
-            consumption === null
-              ? "Your first full-to-full cycle awaits"
-              : "Measured · US gallons"
-          }
-          icon={Fuel}
+    <div className={`page home-page ${showcase === "3d" ? "hero-home" : ""}`}>
+      {showcase === "3d" && (
+        <ShowroomHero
+          onPhotos={() => setShowcase("photos")}
+          open={open}
+          navigate={navigate}
         />
-      </div>
-      <div className="quick-actions easy-actions">
-        {[
-          {
-            label: "Log fuel",
-            icon: Fuel,
-            action: () => open({ type: "fuel" }),
-          },
-          {
-            label: "Update mileage",
-            icon: Gauge,
-            action: () => open({ type: "mileage" }),
-          },
-          {
-            label: "Record service",
-            icon: Wrench,
-            action: () => open({ type: "service" }),
-          },
-          {
-            label: "Check tires",
-            icon: CircleDot,
-            action: () => open({ type: "tire-check" }),
-          },
-        ].map(({ label, icon: Icon, action }) => (
-          <button key={label} onClick={action}>
-            <Icon size={17} strokeWidth={1.5} />
-            {label}
-            <ArrowUpRight size={16} />
-          </button>
-        ))}
-      </div>
-      <div className="dashboard-lower">
-        <section className="panel maintenance-panel">
-          <SectionTitle
-            eyebrow="THE ROAD AHEAD"
-            title="Your next care steps"
-            action="View all"
-            onAction={() => navigate("care")}
-          />
-          {relevant.map((d) => (
-            <CareRow key={d.task.id} due={d} open={open} />
-          ))}
-          <div className="panel-foot">
-            <ShieldCheck size={14} />
-            <span>
-              Scheduled from Mazda references. Grounded in your records.
-            </span>
+      )}
+      <div className="garage-dashboard-content" id="garage-overview">
+        {showcase === "photos" && (
+          <>
+            <div className="page-heading">
+              <div>
+                <span className="eyebrow">A LITTLE CARE. A LONG WAY.</span>
+                <h1>
+                  Every mile, considered<span className="red-dot">.</span>
+                </h1>
+                <p>Your Mazda. Everything you need, beautifully in reach.</p>
+              </div>
+              <span className="mazda-signature">
+                MAZDA<span>CRAFTED AROUND YOU</span>
+              </span>
+            </div>
+            <div className="showcase-toolbar">
+              <span>
+                <span className="showcase-small-line" />
+                {data.vehicle.specs.Year} MAZDA3
+                <span className="showcase-subtitle">YOUR PERSONAL GARAGE</span>
+              </span>
+              <div className="showcase-switch" aria-label="Car showcase view">
+                <button
+                  className={showcase === "photos" ? "active" : ""}
+                  aria-pressed={showcase === "photos"}
+                  onClick={() => setShowcase("photos")}
+                >
+                  <Camera size={15} />
+                  My photos
+                </button>
+                <button
+                  className=""
+                  aria-pressed={false}
+                  onClick={() => setShowcase("3d")}
+                >
+                  <Box size={15} />
+                  Explore in 3D
+                </button>
+              </div>
+            </div>
+            <section className="car-hero" aria-label="Your Mazda3 showcase">
+              <div
+                className="hero-photo"
+                key={data.vehicle.photo || data.vehicle.photoIndex}
+              >
+                <img
+                  src={data.vehicle.photo || photos[data.vehicle.photoIndex]}
+                  alt="Your actual black 2019 Mazda3 Hatchback"
+                />
+              </div>
+              <div className="hero-scrim" />
+              <div className="hero-content">
+                <Badge tone="glass">THE ART OF MOVING YOU</Badge>
+                <p className="hero-year">
+                  {data.vehicle.specs.Year} ·{" "}
+                  {data.vehicle.specs.Manufacturer.toUpperCase()}
+                </p>
+                <h2>
+                  {data.vehicle.specs.Model.split(" ")[0]}
+                  <br />
+                  <span>
+                    {data.vehicle.specs.Model.replace(
+                      /^\S+\s*/,
+                      "",
+                    ).toUpperCase()}
+                  </span>
+                </h2>
+                <p className="hero-engine">
+                  {data.vehicle.specs.Engine.split(" naturally")[0]}
+                </p>
+                <div className="hero-color">
+                  <i />
+                  {data.vehicle.specs.Exterior}
+                  <span> / </span>
+                  {data.vehicle.specs.Interior} interior
+                </div>
+                <button
+                  className="hero-details"
+                  onClick={() => open({ type: "profile" })}
+                >
+                  Explore your car
+                  <ArrowUpRight size={17} />
+                </button>
+              </div>
+              <div className="hero-top-right">
+                <MapPin size={13} />
+                {data.vehicle.specs.Country}
+              </div>
+              <div className="hero-gallery">
+                <button
+                  aria-label="Previous car photo"
+                  onClick={() =>
+                    void update((d) => {
+                      d.vehicle.photo = "";
+                      d.vehicle.photoIndex = (d.vehicle.photoIndex + 3) % 4;
+                    })
+                  }
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span>
+                  {String(data.vehicle.photoIndex + 1).padStart(2, "0")}
+                  <i>/</i>04
+                </span>
+                <button
+                  aria-label="Next car photo"
+                  onClick={() =>
+                    void update((d) => {
+                      d.vehicle.photo = "";
+                      d.vehicle.photoIndex = (d.vehicle.photoIndex + 1) % 4;
+                    })
+                  }
+                >
+                  <ChevronRight size={16} />
+                </button>
+                <button
+                  aria-label="Change car photograph"
+                  onClick={() => open({ type: "profile" })}
+                >
+                  <Camera size={16} />
+                </button>
+              </div>
+              <div className="hero-caption">
+                <span className="tiny-line" />
+                THE BEAUTY OF OWNERSHIP
+              </div>
+            </section>
+          </>
+        )}
+        {showcase === "3d" && (
+          <div className="garage-section-intro">
+            <span className="eyebrow">YOUR PERSONAL GARAGE</span>
+            <h2>Every mile, considered.</h2>
+            <p>A little care. A long way.</p>
           </div>
-        </section>
-        <section className="panel tires-panel">
-          <SectionTitle
-            eyebrow="FOUR POINTS OF CONTACT"
-            title="Tire check"
-            action="Open center"
-            onAction={() => navigate("care", "tires")}
-          />
-          <TireVisual compact open={open} />
-          <div className="tire-reference">
-            <span>
-              <i className="status-dot amber" />
-              Manual measurements
-            </span>
-            <span>{data.vehicle.pressure} PSI reference</span>
-          </div>
-        </section>
-      </div>
-      <details className="home-more">
-        <summary>
-          Ownership insights & driving guides
-          <ChevronDown size={17} />
-        </summary>
-        <div className="home-bottom">
+        )}
+        <div className="dashboard-stats home-vital-stats">
           <button
-            className="driving-card"
-            onClick={() => open({ type: "learn", subject: "potholes" })}
+            className="stat-card odometer-stat"
+            onClick={() => open({ type: "mileage" })}
           >
-            <div className="driving-image">
-              <img
-                src="/images/mazda_rear.jpeg"
-                alt="Rear view of your Mazda3"
-              />
+            <div className="stat-label">
+              CURRENT ODOMETER
+              <Gauge size={17} />
             </div>
-            <div>
-              <span className="eyebrow">MADE FOR YOUR ROADS</span>
-              <h3>
-                Protect the wheels.
-                <br />
-                Enjoy the drive.
-              </h3>
-              <p>A little know-how for Lebanon’s less predictable roads.</p>
-              <span className="text-button">
-                Explore driving care
-                <ArrowUpRight size={15} />
-              </span>
+            <div className="stat-value">
+              {meters === null
+                ? "—"
+                : `${!confirmed ? "~" : ""}${fromMeters(meters, unit).toLocaleString("en-US", { maximumFractionDigits: 0 })}`}
+              <span>{unit}</span>
             </div>
+            <p>
+              {confirmed
+                ? "User-recorded reading"
+                : "Approximate · confirm your reading"}
+              <ArrowUpRight size={13} />
+            </p>
           </button>
-          <section className="panel small-insights">
-            <SectionTitle
-              eyebrow="OWNERSHIP, UNDERSTOOD"
-              title="Your month, at a glance"
-            />
-            <div>
-              <span>
-                Recorded distance<span className="tiny-tag">OBSERVED</span>
-              </span>
-              <strong>{formatDistance(distance, unit)}</strong>
+          <button
+            className="stat-card care-stat"
+            onClick={() => navigate("care")}
+          >
+            <div className="stat-label">
+              CARE STATUS
+              <ShieldCheck size={17} />
             </div>
-            <div>
-              <span>
-                Fuel expenses<span className="tiny-tag">USD</span>
-              </span>
-              <strong>
-                {data.fuel.some(
-                  (f) =>
-                    f.date.startsWith(month) &&
-                    f.cost !== null &&
-                    f.currency === "USD",
-                )
-                  ? money(fuelSpend)
-                  : "—"}
-              </strong>
+            <div className="status-value">
+              <i className={careComplete ? "green" : "amber"} />
+              {careComplete ? "Recorded care current" : "History incomplete"}
             </div>
-            <button
-              className="text-button"
-              onClick={() => navigate("garage", "expenses")}
-            >
-              See ownership insights
-              <ArrowUpRight size={14} />
+            <p>
+              {careComplete
+                ? "Based on your service records"
+                : "Add records to build your care picture"}
+              <ChevronRight size={13} />
+            </p>
+          </button>
+          <Stat
+            label="AVERAGE ECONOMY"
+            value={
+              consumption === null ? "—" : (235.214583 / consumption).toFixed(1)
+            }
+            unit="MPG"
+            detail={
+              consumption === null
+                ? "Your first full-to-full cycle awaits"
+                : "Measured · US gallons"
+            }
+            icon={Fuel}
+          />
+        </div>
+        <div className="quick-actions easy-actions">
+          {[
+            {
+              label: "Log fuel",
+              icon: Fuel,
+              action: () => open({ type: "fuel" }),
+            },
+            {
+              label: "Update mileage",
+              icon: Gauge,
+              action: () => open({ type: "mileage" }),
+            },
+            {
+              label: "Record service",
+              icon: Wrench,
+              action: () => open({ type: "service" }),
+            },
+            {
+              label: "Check tires",
+              icon: CircleDot,
+              action: () => open({ type: "tire-check" }),
+            },
+          ].map(({ label, icon: Icon, action }) => (
+            <button key={label} onClick={action}>
+              <Icon size={17} strokeWidth={1.5} />
+              {label}
+              <ArrowUpRight size={16} />
             </button>
+          ))}
+        </div>
+        <div className="dashboard-lower">
+          <section className="panel maintenance-panel">
+            <SectionTitle
+              eyebrow="THE ROAD AHEAD"
+              title="Your next care steps"
+              action="View all"
+              onAction={() => navigate("care")}
+            />
+            {relevant.map((d) => (
+              <CareRow key={d.task.id} due={d} open={open} />
+            ))}
+            <div className="panel-foot">
+              <ShieldCheck size={14} />
+              <span>
+                Scheduled from Mazda references. Grounded in your records.
+              </span>
+            </div>
+          </section>
+          <section className="panel tires-panel">
+            <SectionTitle
+              eyebrow="FOUR POINTS OF CONTACT"
+              title="Tire check"
+              action="Open center"
+              onAction={() => navigate("care", "tires")}
+            />
+            <TireVisual compact open={open} />
+            <div className="tire-reference">
+              <span>
+                <i className="status-dot amber" />
+                Manual measurements
+              </span>
+              <span>{data.vehicle.pressure} PSI reference</span>
+            </div>
           </section>
         </div>
-      </details>
-      <footer className="page-footer">
-        <span>BUILT AROUND YOUR MAZDA.</span>
-        <span>
-          <ShieldCheck size={12} />
-          Your records stay on this device.
-        </span>
-      </footer>
+        <details className="home-more">
+          <summary>
+            Ownership insights & driving guides
+            <ChevronDown size={17} />
+          </summary>
+          <div className="home-bottom">
+            <button
+              className="driving-card"
+              onClick={() => open({ type: "learn", subject: "potholes" })}
+            >
+              <div className="driving-image">
+                <img
+                  src="/images/mazda_rear.jpeg"
+                  alt="Rear view of your Mazda3"
+                />
+              </div>
+              <div>
+                <span className="eyebrow">MADE FOR YOUR ROADS</span>
+                <h3>
+                  Protect the wheels.
+                  <br />
+                  Enjoy the drive.
+                </h3>
+                <p>A little know-how for Lebanon’s less predictable roads.</p>
+                <span className="text-button">
+                  Explore driving care
+                  <ArrowUpRight size={15} />
+                </span>
+              </div>
+            </button>
+            <section className="panel small-insights">
+              <SectionTitle
+                eyebrow="OWNERSHIP, UNDERSTOOD"
+                title="Your month, at a glance"
+              />
+              <div>
+                <span>
+                  Recorded distance<span className="tiny-tag">OBSERVED</span>
+                </span>
+                <strong>{formatDistance(distance, unit)}</strong>
+              </div>
+              <div>
+                <span>
+                  Fuel expenses<span className="tiny-tag">USD</span>
+                </span>
+                <strong>
+                  {data.fuel.some(
+                    (f) =>
+                      f.date.startsWith(month) &&
+                      f.cost !== null &&
+                      f.currency === "USD",
+                  )
+                    ? money(fuelSpend)
+                    : "—"}
+                </strong>
+              </div>
+              <button
+                className="text-button"
+                onClick={() => navigate("garage", "expenses")}
+              >
+                See ownership insights
+                <ArrowUpRight size={14} />
+              </button>
+            </section>
+          </div>
+        </details>
+        <footer className="page-footer">
+          <span>BUILT AROUND YOUR MAZDA.</span>
+          <span>
+            <ShieldCheck size={12} />
+            Your records stay on this device.
+          </span>
+        </footer>
+      </div>
     </div>
   );
 }

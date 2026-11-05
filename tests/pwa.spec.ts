@@ -5,6 +5,9 @@ test("production app, records, real photographs and manual work offline", async 
 }) => {
   await page.goto("/");
   await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Explore first", exact: true })
     .click();
   const ready = await page.evaluate(async () => {
@@ -39,7 +42,7 @@ test("production app, records, real photographs and manual work offline", async 
   await expect(page.getByText("32,500", { exact: false })).toBeVisible();
   expect(
     await page
-      .locator(".hero-photo img")
+      .locator(".studio-fallback > img")
       .evaluate(
         (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
       ),
@@ -55,10 +58,14 @@ test("onboarding preserves an unknown odometer when skipped", async ({
 }) => {
   await page.goto("/");
   await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Make it yours", exact: true })
     .click();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page
+    .getByRole("dialog")
     .getByRole("button", { name: "Enter my garage", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -71,6 +78,9 @@ test("custom reminders snooze and export calendar without false completion", asy
   page,
 }) => {
   await page.goto("/");
+  await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
   await page
     .getByRole("button", { name: "Explore first", exact: true })
     .click();
@@ -113,6 +123,9 @@ test("notification permission denial gives an actionable error", async ({
   });
   await page.goto("/");
   await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Explore first", exact: true })
     .click();
   await page
@@ -127,19 +140,20 @@ test("notification permission denial gives an actionable error", async ({
 test("invalid backup leaves current records intact", async ({ page }) => {
   await page.goto("/");
   await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Explore first", exact: true })
     .click();
   await page
     .getByRole("button", { name: "Open garage settings", exact: true })
     .click();
   page.on("dialog", (d) => d.accept());
-  await page
-    .locator('input[accept="application/json,.json"]')
-    .setInputFiles({
-      name: "invalid.json",
-      mimeType: "application/json",
-      buffer: Buffer.from('{"schema":2}'),
-    });
+  await page.locator('input[accept="application/json,.json"]').setInputFiles({
+    name: "invalid.json",
+    mimeType: "application/json",
+    buffer: Buffer.from('{"schema":2}'),
+  });
   await expect(page.getByRole("alert")).toContainText("not a supported");
   await page.getByRole("button", { name: "Close dialog", exact: true }).click();
   await expect(page.getByText("~32,000", { exact: false })).toBeVisible();

@@ -2,6 +2,9 @@ import { test, expect } from "@playwright/test";
 async function begin(page: import("@playwright/test").Page) {
   await page.goto("/");
   await page
+    .getByRole("button", { name: "Personalize your garage", exact: true })
+    .click();
+  await page
     .getByRole("button", { name: "Explore first", exact: true })
     .click();
 }
@@ -91,20 +94,17 @@ test("switching miles and kilometers preserves the newly entered odometer", asyn
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByText("32,050", { exact: false })).toBeVisible();
 });
-test("3D only connects when requested and has an offline photo fallback", async ({
-  page,
-  context,
-}) => {
+test("3D hero has an offline photo fallback", async ({ page, context }) => {
   let requests = 0;
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "onLine", { get: () => false }),
+  );
   page.on("request", (r) => {
     if (r.url().includes("sketchfab")) requests++;
   });
   await begin(page);
   expect(requests).toBe(0);
   await context.setOffline(true);
-  await page
-    .getByRole("button", { name: "Explore in 3D", exact: true })
-    .click();
   await expect(
     page.getByText("Your photos are always here.", { exact: true }),
   ).toBeVisible();
@@ -122,16 +122,11 @@ test("3D connection errors give a usable fallback and model-source links", async
 }) => {
   await page.route("https://static.sketchfab.com/**", (route) => route.abort());
   await begin(page);
-  await page
-    .getByRole("button", { name: "Explore in 3D", exact: true })
-    .click();
   await expect(
     page.getByText("The 3D studio could not connect.", { exact: true }),
   ).toBeVisible();
-  await page.getByText("Explore the model options", { exact: true }).click();
-  await expect(page.locator(".model-catalog article")).toHaveCount(3);
   await expect(
-    page.getByText("fisherman3d · 3DExport", { exact: true }),
+    page.getByRole("link", { name: /Ddiaz Design · Sketchfab/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Back to my photos", exact: true })

@@ -5,8 +5,8 @@
   left: auto;
   padding: 22px 29px 18px;
   height: 117px;
-  background: linear-gradient(115deg, #17181f, #0e1116);
-  border-bottom: 1px solid #5d475635;
+  background: linear-gradient(115deg, #181818, #111111);
+  border-bottom: 1px solid #4d4d4d35;
   z-index: 2;
 }
 .studio-heading h2 {
@@ -61,8 +61,8 @@
   justify-content: center;
   gap: 20px;
   padding: 12px 20px;
-  background: #4a28353d;
-  border-bottom: 1px solid #86536a40;
+  background: #3030303d;
+  border-bottom: 1px solid #60606040;
   font-size: 11px;
   color: var(--silver);
 }
@@ -70,7 +70,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: #e0b1c1;
+  color: #bcbcbc;
   font-size: 11px;
   text-decoration: underline;
   text-underline-offset: 4px;

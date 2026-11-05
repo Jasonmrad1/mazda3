@@ -1,10 +1,10 @@
 /** Official publisher listings checked 2026-11-05. No model binaries are redistributed. */
 export const referenceModel = {
-  id: "ac74d76719114f809edfb118d350089d",
-  name: "Mazda 3 Hatchback (2019)",
-  author: "Martin Trafas",
-  url: "https://sketchfab.com/3d-models/mazda-3-hatchback-2019-ac74d76719114f809edfb118d350089d",
-  api: "https://api.sketchfab.com/v3/models/ac74d76719114f809edfb118d350089d",
+  id: "a72de3f3c1604409a7e6fc6be9854c9d",
+  name: "2020 Mazda 3 Hatchback · BP reference",
+  author: "Ddiaz Design",
+  url: "https://sketchfab.com/3d-models/2020-mazda-3-hatchback-a72de3f3c1604409a7e6fc6be9854c9d",
+  api: "https://api.sketchfab.com/v3/models/a72de3f3c1604409a7e6fc6be9854c9d",
 };
 export const modelOptions = [
   {
@@ -12,7 +12,7 @@ export const modelOptions = [
     author: "Martin Trafas · Sketchfab",
     detail:
       "Complete exterior · 330k triangles · interactive hosted view. Download is not offered; listing is editorial. Color and trim can differ from your car.",
-    url: referenceModel.url,
+    url: "https://sketchfab.com/3d-models/mazda-3-hatchback-2019-ac74d76719114f809edfb118d350089d",
     label: "View interactive model",
     type: "Hosted reference",
   },

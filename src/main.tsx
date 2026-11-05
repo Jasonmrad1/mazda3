@@ -6,6 +6,7 @@ import { GarageProvider } from "./lib/store";
 import "./styles.css";
 import "./premium.css";
 import "./interaction.css";
+import './showroom.css';
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { error: boolean }

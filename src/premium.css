@@ -1,36 +1,36 @@
 /* Mazda-inspired: quiet surfaces, precise type, restrained garnet and silver. */
 :root {
-  --surface: #13171c;
-  --elevated: #1b2026;
-  --border: #2a2e35;
-  --muted: #9ca1aa;
-  --red: #a52d3d;
+  --surface: #171717;
+  --elevated: #1f1f1f;
+  --border: #2e2e2e;
+  --muted: #a1a1a1;
+  --red: #484848;
 }
 :root[data-theme="light"] {
-  --surface: #fff;
-  --elevated: #eceeec;
-  --border: #dbdeda;
-  --muted: #646d76;
+  --surface: #ffffff;
+  --elevated: #ededed;
+  --border: #dddddd;
+  --muted: #6c6c6c;
 }
 .sidebar {
-  background: linear-gradient(180deg, #101318 0%, #0c0f13 70%);
-  border-right-color: #343038;
+  background: linear-gradient(180deg, #131313 0%, #0f0f0f 70%);
+  border-right-color: #313131;
 }
 .brand-icon {
-  border-color: #6a5c61;
-  background: linear-gradient(145deg, #3e353a, #171b21);
-  color: #e3d5d9;
+  border-color: #5f5f5f;
+  background: linear-gradient(145deg, #373737, #1b1b1b);
+  color: #d8d8d8;
 }
 .nav-item.active {
-  background: linear-gradient(90deg, #54222e75, #351b2245);
-  border-color: #76424e75;
+  background: linear-gradient(90deg, #2d2d2d75, #21212145);
+  border-color: #4e4e4e75;
 }
 .nav-item.active:before {
   height: 20px;
-  background: #e3a2ad;
+  background: #b1b1b1;
 }
 .sidebar-garage {
-  border-top-color: #373038;
+  border-top-color: #323232;
 }
 .topbar {
   border-bottom-color: color-mix(in srgb, var(--border) 80%, transparent);
@@ -54,7 +54,7 @@
   letter-spacing: 2.6px;
 }
 .mazda-signature {
-  color: #d7d0d0;
+  color: #d1d1d1;
   letter-spacing: 5px;
   font-size: 19px;
   font-weight: 350;
@@ -65,7 +65,7 @@
   display: block;
   font-size: 6px;
   letter-spacing: 2px;
-  color: #8d858a;
+  color: #878787;
   margin-top: 5px;
 }
 .showcase-toolbar {
@@ -86,7 +86,7 @@
 .showcase-small-line {
   width: 23px;
   height: 1px;
-  background: #ba7c86;
+  background: #8a8a8a;
 }
 .showcase-subtitle {
   font-size: 6.5px;
@@ -97,7 +97,7 @@
 .showcase-switch {
   display: flex;
   align-items: center;
-  border: 1px solid #51414a;
+  border: 1px solid #454545;
   background: var(--sidebar);
   padding: 4px;
   border-radius: 7px;
@@ -118,15 +118,15 @@
     background 0.2s;
 }
 .showcase-switch > button.active {
-  background: linear-gradient(140deg, #51333c, #292029);
-  color: #f1e9eb;
-  box-shadow: 0 1px 5px #0004;
+  background: linear-gradient(140deg, #3a3a3a, #232323);
+  color: #ebebeb;
+  box-shadow: 0 1px 5px #00000044;
 }
 .showcase-switch > button:hover {
   color: var(--text);
 }
 .car-hero {
-  border-color: #60515c75;
+  border-color: #55555575;
   border-radius: 10px;
   height: 390px;
 }
@@ -147,27 +147,27 @@
   letter-spacing: 7px;
 }
 .hero-year {
-  color: #bdb4bc;
+  color: #b6b6b6;
   letter-spacing: 4px;
 }
 .hero-details {
-  border-bottom: 1px solid #bd8e984f;
+  border-bottom: 1px solid #9999994f;
   max-width: 140px;
   padding-bottom: 8px;
 }
 .hero-caption {
-  color: #bba9b0;
+  color: #adadad;
 }
 .hero-gallery button {
-  border-color: #aa8a964d;
-  background: #1c1d254f;
+  border-color: #9292924d;
+  background: #1d1d1d4f;
 }
 .hero-top-right {
-  border-color: #ac8c942c;
+  border-color: #9393932c;
 }
 .home-vital-stats {
   grid-template-columns: 1fr 1.15fr 1fr;
-  border-color: #4a3c454f;
+  border-color: #4040404f;
   margin: 19px 0 16px;
   background: linear-gradient(130deg, var(--surface), var(--bg));
 }
@@ -181,7 +181,7 @@
 }
 .home-vital-stats .stat-label {
   font-size: 8px;
-  color: #b0a6ae;
+  color: #a9a9a9;
 }
 .home-vital-stats .stat-card p {
   font-size: 10px;
@@ -211,7 +211,7 @@
   font-size: 12px;
   min-height: 62px;
   background: linear-gradient(115deg, var(--surface), var(--bg));
-  border: 1px solid #5c45503d;
+  border: 1px solid #4b4b4b3d;
   border-radius: 7px;
   gap: 13px;
   white-space: nowrap;
@@ -221,7 +221,7 @@
     transform 0.2s;
 }
 .easy-actions > button > svg:first-child {
-  color: #c19ba7;
+  color: #a4a4a4;
   width: 21px;
   height: 21px;
 }
@@ -230,26 +230,26 @@
   margin-left: auto;
   width: 14px;
   height: 14px;
-  color: #aa909b;
+  color: #969696;
 }
 .easy-actions > button:hover {
   background: var(--elevated);
-  border-color: #aa697c;
+  border-color: #787878;
   transform: translateY(-2px);
 }
 .home-page .panel {
   background: linear-gradient(
     140deg,
     var(--surface),
-    color-mix(in srgb, var(--surface) 90%, #34202a)
+    color-mix(in srgb, var(--surface) 90%, #252525)
   );
-  border-color: #4e424b55;
+  border-color: #45454555;
 }
 .section-title h2 {
   font-weight: 450;
 }
 .home-page .section-title .eyebrow {
-  color: #a897a0;
+  color: #9b9b9b;
   font-size: 7px;
   letter-spacing: 2px;
 }
@@ -334,7 +334,7 @@ summary::-webkit-details-marker {
   content: "+";
   font-size: 18px;
   font-weight: 300;
-  color: #bf8f9e;
+  color: #9a9a9a;
   line-height: 1;
 }
 .form-more[open] > summary:after {
@@ -359,7 +359,7 @@ summary::-webkit-details-marker {
 }
 .date-side-note > span {
   font-size: 12px;
-  color: #b296a0;
+  color: #9d9d9d;
 }
 .date-side-note > small {
   font-size: 10px;
@@ -367,9 +367,9 @@ summary::-webkit-details-marker {
 }
 .full-tank-toggle {
   padding: 17px 15px;
-  border: 1px solid #6f44525c;
+  border: 1px solid #4e4e4e5c;
   border-radius: 7px;
-  background: #68404f10;
+  background: #4a4a4a10;
   margin: 20px 0 6px;
   align-items: center;
   font-size: 12px;
@@ -395,7 +395,7 @@ summary::-webkit-details-marker {
   padding: 13px 0;
 }
 .tire-quick-fields .field > span {
-  color: #c9b4bd;
+  color: #b9b9b9;
 }
 .tire-quick-fields input {
   font-size: 18px;
@@ -403,19 +403,19 @@ summary::-webkit-details-marker {
   letter-spacing: -0.2px;
 }
 .tire-quick-banner {
-  border: 1px solid #69415058;
+  border: 1px solid #4b4b4b58;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 25px;
-  background: linear-gradient(110deg, #65334320, transparent);
+  background: linear-gradient(110deg, #3f3f3f20, transparent);
   padding: 23px 26px;
   margin-bottom: 23px;
 }
 .tire-quick-banner .eyebrow {
   font-size: 7px;
-  color: #b897a3;
+  color: #9f9f9f;
 }
 .tire-quick-banner h3 {
   font-size: 21px;
@@ -446,7 +446,7 @@ summary::-webkit-details-marker {
 }
 .task-explanation > summary:after {
   content: "+";
-  color: #bc8c9c;
+  color: #979797;
   font-size: 16px;
 }
 .task-explanation[open] > summary:after {
@@ -465,7 +465,7 @@ summary::-webkit-details-marker {
 .maintenance-item .care-row .icon-box {
   width: 43px;
   height: 45px;
-  border-color: #69505a35;
+  border-color: #56565635;
 }
 .maintenance-item .care-row-main {
   margin-left: 5px;
@@ -473,24 +473,24 @@ summary::-webkit-details-marker {
 .maintenance-item .care-row-end .text-button {
   min-height: 32px;
   padding: 3px 12px;
-  border: 1px solid #70515c4d;
+  border: 1px solid #5858584d;
   border-radius: 5px;
-  background: #68404f0c;
+  background: #4a4a4a0c;
   font-size: 11px;
 }
 .maintenance-item .care-row-end {
   gap: 9px;
 }
 .care-banner {
-  background: linear-gradient(110deg, #3f26312c, var(--surface));
-  border-color: #51404a75;
+  background: linear-gradient(110deg, #2c2c2c2c, var(--surface));
+  border-color: #44444475;
 }
 .car-studio {
-  border: 1px solid #64505e75;
+  border: 1px solid #55555575;
   border-radius: 10px;
   overflow: hidden;
-  background: #0e1116;
-  color: #eee9eb;
+  background: #111111;
+  color: #eaeaea;
 }
 .studio-stage {
   height: 510px;
@@ -499,14 +499,14 @@ summary::-webkit-details-marker {
   overflow: hidden;
   background: radial-gradient(
     ellipse at 50% 60%,
-    #34303b33 0%,
-    #151920 45%,
-    #0e1116 80%
+    #32323233 0%,
+    #191919 45%,
+    #111111 80%
   );
 }
 .studio-stage:fullscreen {
   height: 100dvh;
-  background: #0e1116;
+  background: #111111;
 }
 .studio-heading {
   position: absolute;
@@ -517,7 +517,7 @@ summary::-webkit-details-marker {
 }
 .studio-heading .eyebrow {
   font-size: 7px;
-  color: #ae8e9a;
+  color: #969696;
 }
 .studio-heading h2 {
   font-size: 27px;
@@ -531,14 +531,14 @@ summary::-webkit-details-marker {
   gap: 7px;
   font-size: 7px;
   letter-spacing: 1.4px;
-  color: #9c939c;
+  color: #969696;
 }
 .studio-live i {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #c7a2af;
-  box-shadow: 0 0 9px #da8fa761;
+  background: #ababab;
+  box-shadow: 0 0 9px #a1a1a161;
 }
 .studio-stage iframe {
   position: absolute;
@@ -558,12 +558,12 @@ summary::-webkit-details-marker {
   position: absolute;
   width: 80%;
   height: 20%;
-  border: 1px solid #92808b15;
+  border: 1px solid #85858515;
   border-radius: 50%;
   left: 10%;
   top: 70%;
   z-index: 0;
-  box-shadow: 0 0 80px #b0788c08;
+  box-shadow: 0 0 80px #85858508;
 }
 .studio-loading {
   position: absolute;
@@ -578,7 +578,7 @@ summary::-webkit-details-marker {
   pointer-events: none;
 }
 .studio-loading > svg {
-  color: #bd93a2;
+  color: #9d9d9d;
   margin-bottom: 24px;
   animation: studioPulse 2s ease-in-out infinite;
 }
@@ -589,19 +589,19 @@ summary::-webkit-details-marker {
 }
 .studio-loading p {
   font-size: 11px;
-  color: #9c939c;
+  color: #969696;
   margin: 12px 0 20px;
 }
 .studio-loading small {
   font-size: 8px;
-  color: #7c7580;
+  color: #777777;
   letter-spacing: 0.3px;
   margin-top: 18px;
 }
 .studio-progress {
   width: 155px;
   height: 2px;
-  background: #4c394463;
+  background: #3e3e3e63;
   position: relative;
   overflow: hidden;
   border-radius: 3px;
@@ -613,7 +613,7 @@ summary::-webkit-details-marker {
   top: 0;
   bottom: 0;
   width: 40%;
-  background: #c697a8;
+  background: #a2a2a2;
   animation: studioLoad 1.7s ease-in-out infinite;
 }
 .studio-hint {
@@ -624,11 +624,11 @@ summary::-webkit-details-marker {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #b8a9b2;
+  color: #adadad;
   font-size: 9px;
   pointer-events: none;
-  background: #11141bd9;
-  border: 1px solid #79616d33;
+  background: #141414d9;
+  border: 1px solid #67676733;
   padding: 9px 12px;
   border-radius: 5px;
   backdrop-filter: blur(8px);
@@ -640,12 +640,12 @@ summary::-webkit-details-marker {
   z-index: 3;
   display: flex;
   align-items: center;
-  background: #11141bea;
-  border: 1px solid #79616d55;
+  background: #141414ea;
+  border: 1px solid #67676755;
   border-radius: 6px;
   padding: 4px;
   gap: 3px;
-  box-shadow: 0 3px 30px #0005;
+  box-shadow: 0 3px 30px #00000055;
 }
 .studio-controls button {
   display: grid;
@@ -654,16 +654,16 @@ summary::-webkit-details-marker {
   min-height: 35px;
   font-size: 9px;
   border-radius: 3px;
-  color: #d5b8c4;
+  color: #bfbfbf;
   padding: 0 8px;
 }
 .studio-controls button:hover {
-  background: #5a354552;
+  background: #3e3e3e52;
 }
 .studio-controls span {
   height: 18px;
   width: 1px;
-  background: #79616d55;
+  background: #67676755;
   margin: 0 4px;
 }
 .studio-source {
@@ -672,10 +672,10 @@ summary::-webkit-details-marker {
   gap: 20px;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid #6b536237;
-  background: #11151a;
+  border-top: 1px solid #59595937;
+  background: #151515;
   font-size: 9px;
-  color: #a2939d;
+  color: #979797;
 }
 .studio-source > span {
   display: flex;
@@ -687,12 +687,12 @@ summary::-webkit-details-marker {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #cbb0bd;
+  color: #b7b7b7;
 }
 .studio-source small {
   font-size: 8px;
   text-align: right;
-  color: #8f858f;
+  color: #888888;
 }
 .studio-fallback {
   position: absolute;
@@ -720,7 +720,7 @@ summary::-webkit-details-marker {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: #10141a66;
+  background: #14141466;
 }
 .studio-fallback > div {
   display: flex;
@@ -730,7 +730,7 @@ summary::-webkit-details-marker {
   max-width: 430px;
 }
 .studio-fallback svg {
-  color: #d4afbf;
+  color: #b8b8b8;
 }
 .studio-fallback h3 {
   font-size: 23px;
@@ -740,7 +740,7 @@ summary::-webkit-details-marker {
 }
 .studio-fallback p {
   font-size: 12px;
-  color: #c2b7bf;
+  color: #bababa;
   line-height: 1.9;
   margin-bottom: 20px;
 }
@@ -755,9 +755,9 @@ summary::-webkit-details-marker {
   font-size: 10px;
 }
 .model-catalog {
-  border-top: 1px solid #6b536237;
+  border-top: 1px solid #59595937;
   padding: 0 23px;
-  background: #101419;
+  background: #141414;
 }
 .model-catalog > summary {
   display: flex;
@@ -766,7 +766,7 @@ summary::-webkit-details-marker {
   gap: 10px;
   list-style: none;
   font-size: 10px;
-  color: #baa3ae;
+  color: #a9a9a9;
   cursor: pointer;
   padding: 17px 0;
 }
@@ -783,7 +783,7 @@ summary::-webkit-details-marker {
 }
 .model-catalog > p {
   font-size: 11px;
-  color: #9f949e;
+  color: #979797;
   line-height: 1.8;
   max-width: 850px;
   margin: 5px 0 20px;
@@ -794,59 +794,59 @@ summary::-webkit-details-marker {
   gap: 13px;
 }
 .model-catalog article {
-  border: 1px solid #4f3e494f;
+  border: 1px solid #4242424f;
   padding: 18px;
   border-radius: 7px;
   display: flex;
   flex-direction: column;
-  background: #17191f;
+  background: #191919;
 }
 .model-catalog .eyebrow {
   font-size: 6px;
-  color: #aa8292;
+  color: #8c8c8c;
   letter-spacing: 1.4px;
 }
 .model-catalog h3 {
   font-size: 13px;
   line-height: 1.7;
   margin: 9px 0 6px;
-  color: #e5d8df;
+  color: #dbdbdb;
 }
 .model-author {
   font-size: 8px;
-  color: #b69ca8;
+  color: #a2a2a2;
 }
 .model-catalog article p {
   font-size: 10px;
-  color: #a396a1;
+  color: #9a9a9a;
   margin: 13px 0 17px;
   line-height: 1.8;
 }
 .model-catalog .text-button {
   font-size: 10px;
   margin-top: auto;
-  color: #d3afc0;
+  color: #b8b8b8;
 }
 .model-catalog > small {
   font-size: 9px;
-  color: #8b7c88;
+  color: #808080;
   display: block;
   margin: 19px 0 22px;
   line-height: 1.9;
 }
 .page-footer > span {
-  color: #92808b;
+  color: #858585;
 }
 .home-page .badge.amber {
-  color: #d2b48b;
-  background: #b1936c10;
-  border-color: #a88b6b22;
+  color: #b7b7b7;
+  background: #97979710;
+  border-color: #8f8f8f22;
 }
 .home-page .hero-content .hero-color {
-  color: #c5bac1;
+  color: #bdbdbd;
 }
 .home-page .hero-engine {
-  color: #c1b7c0;
+  color: #bababa;
 }
 .form-more input,
 .form-more select,
@@ -854,10 +854,10 @@ summary::-webkit-details-marker {
   background: var(--surface);
 }
 .bottom-nav > button.active {
-  color: #e1a7b5;
+  color: #b4b4b4;
 }
 .sidebar .sidebar-label {
-  color: #96838f;
+  color: #888888;
 }
 .brand small {
   letter-spacing: 1.7px;
@@ -1420,7 +1420,7 @@ summary::-webkit-details-marker {
     font-weight: 400;
   }
   .sidebar {
-    background: #0e1116;
+    background: #111111;
   }
 }
 @media (max-width: 420px) {
@@ -1572,40 +1572,40 @@ summary::-webkit-details-marker {
   }
 }
 :root[data-theme="light"] .sidebar {
-  background: linear-gradient(180deg, #fafaf7, #eeefeb);
-  border-right-color: #dcd9d8;
+  background: linear-gradient(180deg, #fafafa, #eeeeee);
+  border-right-color: #dadada;
 }
 :root[data-theme="light"] .nav-item.active {
-  background: #f1e4e7;
-  border-color: #d8b4bf;
-  color: #7f2e43;
+  background: #e7e7e7;
+  border-color: #bcbcbc;
+  color: #414141;
 }
 :root[data-theme="light"] .sidebar-label {
-  color: #8d7884;
+  color: #7d7d7d;
 }
 :root[data-theme="light"] .mazda-signature {
-  color: #51414b;
+  color: #454545;
 }
 :root[data-theme="light"] .showcase-switch {
-  background: #eeebe9;
-  border-color: #d0bcc6;
+  background: #ebebeb;
+  border-color: #c1c1c1;
 }
 :root[data-theme="light"] .showcase-switch > button.active {
-  background: #fff;
-  color: #87354d;
-  box-shadow: 0 1px 4px #502b3d20;
+  background: #ffffff;
+  color: #484848;
+  box-shadow: 0 1px 4px #34343420;
 }
 :root[data-theme="light"] .home-vital-stats .stat-label {
-  color: #766370;
+  color: #686868;
 }
 :root[data-theme="light"] .easy-actions > button > svg:first-child {
-  color: #9e5b70;
+  color: #6b6b6b;
 }
 :root[data-theme="light"] .home-page .badge.amber {
-  color: #98641b;
+  color: #6a6a6a;
 }
 :root[data-theme="light"] .page-footer > span {
-  color: #766370;
+  color: #686868;
 }
 @media (prefers-reduced-motion: reduce) {
   .studio-loading > svg,

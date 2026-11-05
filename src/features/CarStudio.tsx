@@ -22,7 +22,7 @@ type Material = {
   name: string;
   channels: Record<
     string,
-    { color?: number[]; factor?: number; enable?: boolean }
+    { color?: number[]; factor?: number; enable?: boolean; texture?: unknown }
   >;
   stateSetID: number;
 };
@@ -42,6 +42,8 @@ export interface ViewerApi {
   ) => void;
   setMaterial: (material: Material, fn?: () => void) => void;
   setBackground: (options: { color: number[] }, fn?: () => void) => void;
+  setEnableCameraConstraints: (enabled: boolean) => void;
+  setFov: (value: number, fn?: () => void) => void;
 }
 declare global {
   interface Window {
@@ -68,12 +70,22 @@ function loadViewerApi() {
   });
   return scriptPromise;
 }
-export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
+export function CarStudio({
+  onPhotos,
+  hero = false,
+  view = "exterior",
+}: {
+  onPhotos: () => void;
+  hero?: boolean;
+  view?: "exterior" | "interior";
+}) {
   const { data } = useGarage();
   const frame = useRef<HTMLIFrameElement>(null),
     stage = useRef<HTMLDivElement>(null),
     api = useRef<ViewerApi | null>(null),
     original = useRef<CameraPose | null>(null);
+  const viewRef = useRef(view);
+  viewRef.current = view;
   const [status, setStatus] = useState<
       "loading" | "ready" | "error" | "offline"
     >(navigator.onLine ? "loading" : "offline"),
@@ -120,24 +132,55 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
             api.current = viewer;
             viewer.addEventListener("viewerready", () => {
               if (!active) return;
-              clearTimeout(timer);
-              setStatus("ready");
-              viewer.setBackground({ color: [0.055, 0.065, 0.078] });
+              viewer.setBackground({ color: [0.016, 0.016, 0.016] });
               viewer.getCameraLookAt((error, camera) => {
-                if (!error && active) original.current = camera;
+                if (!error && active) {
+                  const factor = hero ? 0.36 : 0.45;
+                  const pose: CameraPose = {
+                    target: camera.target,
+                    position: camera.position.map(
+                      (value, i) =>
+                        camera.target[i] + (value - camera.target[i]) * factor,
+                    ) as Vector,
+                  };
+                  original.current = pose;
+                  if (viewRef.current === "exterior")
+                    viewer.setCameraLookAt(pose.position, pose.target, 0);
+                }
               });
               viewer.getMaterialList((error, materials) => {
                 if (error || !active) return;
                 for (const material of materials) {
-                  if (!/car.?paint/i.test(material.name)) continue;
+                  if (!/car.?paint|^body$|MI_1218030001/i.test(material.name)) continue;
                   const channel =
                     material.channels.AlbedoPBR ??
                     material.channels.DiffuseColor;
                   if (channel) {
-                    channel.color = [0.018, 0.021, 0.026];
+                    delete channel.texture;
+                    channel.color = [0.006, 0.006, 0.006];
                     channel.factor = 1;
+                    for (const key of [
+                      "AlbedoPBR",
+                      "DiffuseColor",
+                      "DiffusePBR",
+                    ]) {
+                      const paint = material.channels[key];
+                      if (paint) {
+                        delete paint.texture;
+                        paint.color = [0.006, 0.006, 0.006];
+                        paint.factor = 1;
+                      }
+                    }
+                    if (material.channels.RoughnessPBR)
+                      material.channels.RoughnessPBR.factor = 0.07;
+                    if (material.channels.MetalnessPBR)
+                      material.channels.MetalnessPBR.factor = 0.32;
                     viewer.setMaterial(material, () => {
-                      if (active) setBlackPaint(true);
+                      if (active) {
+                        setBlackPaint(true);
+                        setStatus("ready");
+                        clearTimeout(timer);
+                      }
                     });
                   }
                 }
@@ -167,6 +210,30 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
       api.current = null;
     };
   }, [attempt]);
+  const cabinPose = (rear = false) => {
+    const viewer = api.current;
+    if (!viewer) return;
+    viewer.setFov(75);
+    viewer.setCameraLookAt(
+      rear ? [0.0035, 0.012, 0.009] : [0.0035, 0.002, 0.0105],
+      rear ? [0.001, -0.008, 0.006] : [0.001, -0.01, 0.007],
+      matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : 0.8,
+    );
+  };
+  useEffect(() => {
+    if (status !== "ready" || !api.current) return;
+    const viewer = api.current;
+    viewer.setEnableCameraConstraints(false);
+    if (view === "interior") cabinPose();
+    else if (original.current) {
+      viewer.setFov(45);
+      viewer.setCameraLookAt(
+        original.current.position,
+        original.current.target,
+        0.8,
+      );
+    }
+  }, [view, status]);
   useEffect(() => {
     const offline = () => setStatus("offline");
     window.addEventListener("offline", offline);
@@ -175,6 +242,20 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
   const rotate = (angle: number) => {
     api.current?.getCameraLookAt((error, camera) => {
       if (error) return;
+      if (view === "interior") {
+        const x = camera.target[0] - camera.position[0],
+          y = camera.target[1] - camera.position[1];
+        api.current?.setCameraLookAt(
+          camera.position,
+          [
+            camera.position[0] + x * Math.cos(angle) - y * Math.sin(angle),
+            camera.position[1] + x * Math.sin(angle) + y * Math.cos(angle),
+            camera.target[2],
+          ],
+          matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : 0.8,
+        );
+        return;
+      }
       const x = camera.position[0] - camera.target[0],
         y = camera.position[1] - camera.target[1];
       api.current?.setCameraLookAt(
@@ -189,7 +270,9 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
     });
   };
   return (
-    <div className="car-studio">
+    <div
+      className={`car-studio ${hero ? "hero-studio" : ""} ${view === "interior" ? "interior-view" : ""}`}
+    >
       <div
         className="studio-stage"
         ref={stage}
@@ -206,7 +289,7 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
         <div className="studio-orbit" aria-hidden="true" />
         <iframe
           ref={frame}
-          title="2019 Mazda3 Hatchback interactive 3D reference model"
+          title="2020 Mazda3 BP Hatchback interactive 3D reference model"
           className={status === "ready" ? "ready" : ""}
           allow="autoplay; fullscreen; xr-spatial-tracking"
           allowFullScreen
@@ -274,6 +357,13 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
               <span>Drag to rotate · scroll or pinch to zoom</span>
             </div>
             <div className="studio-controls">
+              {view === "interior" && (
+                <>
+                  <button onClick={() => cabinPose()}>Driver</button>
+                  <button onClick={() => cabinPose(true)}>Rear cabin</button>
+                  <span />
+                </>
+              )}
               <button
                 aria-label="Rotate car left"
                 onClick={() => rotate(Math.PI / 4)}
@@ -283,6 +373,10 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
               <button
                 aria-label="Reset car view"
                 onClick={() => {
+                  if (view === "interior") {
+                    cabinPose();
+                    return;
+                  }
                   if (original.current)
                     api.current?.setCameraLookAt(
                       original.current.position,
@@ -327,7 +421,7 @@ export function CarStudio({ onPhotos }: { onPhotos: () => void }) {
         </span>
         <small>
           {blackPaint
-            ? "Black body finish applied · exact trim / interior not verified"
+            ? "Black body finish applied · 2020 BP reference · trim may differ"
             : "Reference appearance · color, wheels and interior may differ"}
         </small>
       </div>

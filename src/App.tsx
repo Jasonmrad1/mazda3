@@ -1,9 +1,9 @@
+import { MazdaIcon } from "./components/MazdaIcon";
 import { useState, useEffect } from "react";
 import {
   House,
   Wrench,
   Fuel,
-  Warehouse,
   Sparkles,
   Bell,
   Settings,
@@ -31,7 +31,7 @@ const nav = [
   { id: "home", label: "Home", mobile: "Home", icon: House },
   { id: "care", label: "Care", mobile: "Care", icon: Wrench },
   { id: "fuel", label: "Fuel", mobile: "Fuel", icon: Fuel },
-  { id: "garage", label: "Garage", mobile: "Garage", icon: Warehouse },
+  { id: "garage", label: "Garage", mobile: "Garage", icon: MazdaIcon },
   {
     id: "assistant",
     label: "Assistant",
@@ -99,7 +99,9 @@ export default function App() {
   const alerts = dueAlerts(data);
   const open = (m: ModalState) => setModal(m);
   return (
-    <div className="app-shell">
+    <div
+      className={`app-shell ${route.tab === "home" ? "showroom-shell" : ""}`}
+    >
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -110,7 +112,7 @@ export default function App() {
           aria-label="My Garage home"
         >
           <span className="brand-icon">
-            <Warehouse size={25} strokeWidth={1.3} />
+            <MazdaIcon size={25} strokeWidth={1.3} />
           </span>
           <span>
             MY GARAGE<small>YOUR MAZDA COMPANION</small>
@@ -277,11 +279,10 @@ export default function App() {
           </button>
         ))}
       </nav>
-      {!data.settings.onboardingDone && !modal && (
-        <Onboarding onClose={() => {}} />
-      )}
       {modal &&
-        (modal.type === "learn" ? (
+        (modal.type === "onboarding" ? (
+          <Onboarding onClose={() => setModal(null)} />
+        ) : modal.type === "learn" ? (
           <ArticleModal
             subject={modal.subject ?? "tires"}
             onClose={() => setModal(null)}

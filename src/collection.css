@@ -85,6 +85,100 @@
 .diagram-source:hover { color:var(--text); }
 :root[data-theme="light"] .bottom-nav>button.active { color:#171717; }
 :root[data-theme="light"] .panel,:root[data-theme="light"] .home-page .panel { background:var(--surface); }
+
+/* Quiet, cinematic motion across the garage. Keep effects on opacity and
+   transforms so the experience stays smooth on mobile devices. */
+.main-content { animation: garagePageEnter .62s cubic-bezier(.2,.75,.25,1) both; }
+.main-content > .page:not(.hero-home) > .page-heading,
+.main-content > .page:not(.hero-home) > .section-title { animation: garageContentEnter .62s .04s cubic-bezier(.2,.75,.25,1) both; }
+.main-content > .page:not(.hero-home) .panel,
+.main-content > .page:not(.hero-home) .stat-card,
+.main-content > .page:not(.hero-home) .care-card,
+.main-content > .page:not(.hero-home) .handbook-card,
+.main-content > .page:not(.hero-home) .document-tile,
+.main-content > .page:not(.hero-home) .maintenance-item {
+  animation: garageContentEnter .66s cubic-bezier(.2,.75,.25,1) backwards;
+}
+.main-content > .page:not(.hero-home) .panel:nth-of-type(2),
+.main-content > .page:not(.hero-home) .stat-card:nth-child(2),
+.main-content > .page:not(.hero-home) .care-card:nth-child(2),
+.main-content > .page:not(.hero-home) .handbook-card:nth-child(2),
+.main-content > .page:not(.hero-home) .document-tile:nth-child(2) { animation-delay: .07s; }
+.main-content > .page:not(.hero-home) .panel:nth-of-type(3),
+.main-content > .page:not(.hero-home) .stat-card:nth-child(3),
+.main-content > .page:not(.hero-home) .care-card:nth-child(3),
+.main-content > .page:not(.hero-home) .handbook-card:nth-child(3),
+.main-content > .page:not(.hero-home) .document-tile:nth-child(3) { animation-delay: .13s; }
+.main-content > .page:not(.hero-home) .panel:nth-of-type(4),
+.main-content > .page:not(.hero-home) .care-card:nth-child(4),
+.main-content > .page:not(.hero-home) .handbook-card:nth-child(4),
+.main-content > .page:not(.hero-home) .document-tile:nth-child(4) { animation-delay: .19s; }
+
+.collection-header { transition: background-color .35s ease, border-color .35s ease; }
+.collection-nav button { transition: color .25s ease; }
+.collection-nav button > span { transition: width .3s cubic-bezier(.2,.75,.25,1), left .3s cubic-bezier(.2,.75,.25,1); }
+.collection-nav button[aria-current="page"] > span { animation: navMarkEnter .38s cubic-bezier(.2,.75,.25,1) both; }
+.collection-tools > button, .bottom-nav > button { transition: color .24s ease, background-color .24s ease, transform .24s cubic-bezier(.2,.75,.25,1); }
+.collection-tools > button:hover, .bottom-nav > button:hover { transform: translateY(-2px); }
+.bottom-nav > button.active svg { animation: navIconEnter .32s cubic-bezier(.2,.75,.25,1) both; }
+
+.button, .icon-button, .text-button, .easy-actions > button, .quick-actions > button,
+.tab-strip > button, .showcase-switch > button, .official-price-ranges > button,
+.hero-gallery > button, .photo-thumbnails > button, .prompt-grid > button {
+  transition: color .24s ease, background-color .24s ease, border-color .24s ease,
+    box-shadow .3s ease, transform .3s cubic-bezier(.2,.75,.25,1), opacity .24s ease;
+}
+.button:hover, .prompt-grid > button:hover { transform: translateY(-2px); }
+.icon-button:hover, .hero-gallery > button:hover, .photo-thumbnails > button:hover { transform: translateY(-2px); }
+.easy-actions > button:hover, .quick-actions > button:hover { transform: translateX(4px); }
+.easy-actions > button > svg:last-child, .quick-actions > button > svg:last-child { transition: transform .28s ease; }
+.easy-actions > button:hover > svg:last-child, .quick-actions > button:hover > svg:last-child { transform: translate(2px,-2px); }
+
+.panel, .stat-card, .care-card, .handbook-card, .document-tile,
+.maintenance-item, .education-card, .wheel-card, .driving-card {
+  transition: border-color .3s ease, background-color .3s ease, box-shadow .35s ease, transform .35s cubic-bezier(.2,.75,.25,1);
+}
+.panel:hover, .care-card:hover, .handbook-card:hover, .document-tile:hover,
+.education-card:hover, .wheel-card:hover, .driving-card:hover {
+  border-color: color-mix(in srgb, var(--silver) 32%, var(--border));
+}
+.stat-card:hover { transform: translateY(-3px); }
+.hero-photo img { animation: heroPhotoArrive .95s cubic-bezier(.2,.75,.25,1) both; }
+.showroom-hero .showroom-car { animation: showroomCarArrive 1.15s .08s cubic-bezier(.2,.75,.25,1) both; }
+.showroom-hero .showroom-intro { animation: garageContentEnter .76s .22s cubic-bezier(.2,.75,.25,1) both; }
+.showroom-hero .showroom-header { animation: headerArrive .7s cubic-bezier(.2,.75,.25,1) both; }
+.showroom-hero .showroom-view-switch,
+.showroom-hero .showroom-specs,
+.showroom-hero .showroom-setup { animation: garageContentEnter .7s .32s cubic-bezier(.2,.75,.25,1) both; }
+.showroom-watermark { animation: watermarkBreath 9s ease-in-out infinite alternate; }
+
+dialog.modal[open] { animation: modalEnter .32s cubic-bezier(.2,.75,.25,1) both; }
+dialog.modal[open]::backdrop { animation: backdropEnter .28s ease both; }
+.toast, .offline-banner, .app-update-banner { animation: garageContentEnter .34s cubic-bezier(.2,.75,.25,1) both; }
+.notification-button i { animation: reminderGlow 2.8s ease-in-out infinite; }
+.chart-tooltip, .recharts-tooltip-wrapper { transition: opacity .18s ease; }
+
+@keyframes garagePageEnter { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
+@keyframes garageContentEnter { from { opacity:0; transform:translateY(13px); } to { opacity:1; transform:translateY(0); } }
+@keyframes headerArrive { from { opacity:0; transform:translateY(-9px); } to { opacity:1; transform:translateY(0); } }
+@keyframes showroomCarArrive { from { opacity:0; transform:translate3d(0,17px,0) scale(.985); } to { opacity:1; transform:translate3d(0,0,0) scale(1); } }
+@keyframes heroPhotoArrive { from { opacity:.45; transform:scale(1.025); } to { opacity:1; transform:scale(1); } }
+@keyframes navMarkEnter { from { opacity:0; transform:scaleX(.35); } to { opacity:1; transform:scaleX(1); } }
+@keyframes navIconEnter { from { transform:translateY(2px) scale(.88); opacity:.65; } to { transform:translateY(0) scale(1); opacity:1; } }
+@keyframes modalEnter { from { opacity:0; transform:translateY(12px) scale(.99); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes backdropEnter { from { opacity:0; } to { opacity:1; } }
+@keyframes watermarkBreath { from { opacity:.55; transform:translateY(0); } to { opacity:1; transform:translateY(-7px); } }
+@keyframes reminderGlow { 0%,100% { box-shadow:0 0 0 0 #ffffff00; } 50% { box-shadow:0 0 0 4px #ffffff0a; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .main-content, .main-content *, .showroom-hero *, dialog.modal[open], dialog.modal[open]::backdrop,
+  .toast, .offline-banner, .app-update-banner { animation-duration:.01ms !important; animation-delay:0ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; }
+  .main-content *, .collection-header, .collection-header *, .bottom-nav *, .showroom-hero *,
+  .button, .icon-button, .text-button, .panel, .stat-card, .care-card, .handbook-card,
+  .document-tile, .maintenance-item { transition-duration:.01ms !important; }
+  .showroom-watermark, .notification-button i { animation:none !important; }
+}
+
 @media(min-width:1101px) { .collection-mobile-nav { display:none; } }
 @media(max-width:1100px) {
   .collection-header { padding:0 30px; height:84px; }

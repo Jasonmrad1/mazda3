@@ -69,6 +69,27 @@ function number(
 }
 const text = (f: FormData, key: string) => String(f.get(key) ?? "").trim();
 
+function synchronizeFuelPrice(changed: HTMLInputElement) {
+  const form = changed.form;
+  if (!form) return;
+  const liters = form.elements.namedItem("liters") as HTMLInputElement | null;
+  const total = form.elements.namedItem("cost") as HTMLInputElement | null;
+  const perLiter = form.elements.namedItem("pricePerLiter") as HTMLInputElement | null;
+  const volume = Number(liters?.value), amount = Number(total?.value), rate = Number(perLiter?.value);
+  if (changed.name === "cost" && total?.value && rate > 0) {
+    if (liters) liters.value = (amount / rate).toFixed(2);
+  } else if (changed.name === "pricePerLiter" && rate > 0 && total?.value) {
+    if (liters) liters.value = (amount / rate).toFixed(2);
+  } else if (changed.name === "pricePerLiter" && perLiter?.value && volume > 0) {
+    if (total) total.value = (rate * volume).toFixed(2);
+  } else if (changed.name === "cost" && total?.value && volume > 0) {
+    if (perLiter) perLiter.value = (amount / volume).toFixed(3);
+  } else if (changed.name === "liters") {
+    if (perLiter?.value && total) total.value = (rate * volume).toFixed(2);
+    else if (total?.value && perLiter) perLiter.value = (amount / volume).toFixed(3);
+  }
+}
+
 export function Editor({
   state,
   onClose,
@@ -246,16 +267,23 @@ export function Editor({
       }
       if (state.type === "fuel") {
         const value = number(f.get("odometer"), "odometer")!,
-          liters = number(f.get("liters"), "liters")!;
-        if (liters <= 0) throw Error("Liters must be greater than zero.");
+          litersInput = number(f.get("liters"), "liters", true);
+        let liters = litersInput;
         let cost = number(f.get("cost"), "total price", true);
         const perLiter = number(
           f.get("pricePerLiter"),
           "price per liter",
           true,
         );
-        if (cost === null && perLiter !== null)
+        if (liters === null && cost !== null && perLiter !== null && perLiter > 0)
+          liters = Number((cost / perLiter).toFixed(2));
+        if (cost === null && liters !== null && perLiter !== null)
           cost = Number((perLiter * liters).toFixed(2));
+        if (perLiter === null && cost !== null && liters !== null && liters > 0)
+          cost = Number(cost.toFixed(2));
+        if (liters === null)
+          throw Error("Enter liters, or enter both the amount paid and price per liter to calculate liters.");
+        if (liters <= 0) throw Error("Liters must be greater than zero.");
         if (
           cost !== null &&
           perLiter !== null &&
@@ -920,12 +948,12 @@ export function Editor({
                     type="number"
                     min="0.01"
                     step="0.01"
-                    required
                     defaultValue={oldFuel?.liters}
-                    placeholder="e.g. 35.5"
+                    placeholder="Enter liters or calculate below"
+                    onChange={(e) => synchronizeFuelPrice(e.currentTarget)}
                   />
                 </Field>
-                <Field label="Total price (optional)">
+                <Field label="Total paid (optional)">
                   <input
                     name="cost"
                     type="number"
@@ -933,6 +961,7 @@ export function Editor({
                     step="0.01"
                     defaultValue={oldFuel?.cost ?? ""}
                     placeholder="0.00"
+                    onChange={(e) => synchronizeFuelPrice(e.currentTarget)}
                   />
                 </Field>
               </div>
@@ -949,8 +978,8 @@ export function Editor({
                   </small>
                 </span>
               </label>
-              <details className="form-more" open={!!oldFuel}>
-                <summary>Price per liter, driving & notes (optional)</summary>
+              <details className="form-more" open>
+                <summary>Price per liter, currency, driving & notes</summary>
                 <div className="form-grid">
                   <Field label="Price per liter (optional)">
                     <input
@@ -958,7 +987,9 @@ export function Editor({
                       type="number"
                       min="0"
                       step="0.001"
-                      placeholder="Used if total is blank"
+                      defaultValue={oldFuel?.cost !== null && oldFuel?.cost !== undefined && oldFuel.liters ? (oldFuel.cost / oldFuel.liters).toFixed(3) : ""}
+                      placeholder="Calculated from total"
+                      onChange={(e) => synchronizeFuelPrice(e.currentTarget)}
                     />
                   </Field>
                   <Field label="Currency">
@@ -971,6 +1002,7 @@ export function Editor({
                     </select>
                   </Field>
                 </div>
+                <p className="form-hint">Enter any two: liters, amount paid, and price per liter. The third value fills in automatically. For an automatic liters calculation, use the actual price charged at the pump.</p>
                 <div className="form-grid">
                   <Field label="Driving conditions">
                     <select

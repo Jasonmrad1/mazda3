@@ -13,10 +13,12 @@ export function TrendChart({
   data,
   unit = "L/100 km",
   bar = false,
+  seriesName = "Recorded",
 }: {
   data: { label: string; value: number }[];
   unit?: string;
   bar?: boolean;
+  seriesName?: string;
 }) {
   const common = { data, margin: { top: 15, right: 16, left: 0, bottom: 0 } };
   const parts = (
@@ -35,6 +37,13 @@ export function TrendChart({
       />
       <YAxis
         tick={{ fill: "var(--muted)", fontSize: 11 }}
+        tickFormatter={(value: number) =>
+          Math.abs(value) >= 1_000_000
+            ? `${(value / 1_000_000).toFixed(1)}M`
+            : Math.abs(value) >= 10_000
+              ? `${Math.round(value / 1_000)}k`
+              : String(value)
+        }
         axisLine={false}
         tickLine={false}
         width={40}
@@ -49,7 +58,7 @@ export function TrendChart({
         }}
         formatter={(value) => [
           `${Number(value).toFixed(2)} ${unit}`,
-          "Recorded",
+          seriesName,
         ]}
       />
     </>

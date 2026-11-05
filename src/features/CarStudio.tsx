@@ -115,7 +115,7 @@ export function CarStudio({
           autospin: 0,
           camera: 0,
           max_texture_size: matchMedia("(max-width:760px)").matches
-            ? 1024
+            ? 512
             : 2048,
           dnt: 1,
           transparent: 1,
@@ -151,6 +151,16 @@ export function CarStudio({
               viewer.getMaterialList((error, materials) => {
                 if (error || !active) return;
                 for (const material of materials) {
+                  // Keep the upholstery maps and stitching, tinting the texture
+                  // rather than replacing it with an untextured black surface.
+                  if (/MI_(Leather_Inst|ChangeA_Cabin|Fablic)/i.test(material.name)) {
+                    for (const key of ["AlbedoPBR", "DiffuseColor", "DiffusePBR"]) {
+                      const upholstery = material.channels[key];
+                      if (upholstery) upholstery.factor = Math.min(upholstery.factor ?? 1, 0.42);
+                    }
+                    viewer.setMaterial(material);
+                    continue;
+                  }
                   if (!/car.?paint|^body$|MI_1218030001/i.test(material.name)) continue;
                   const channel =
                     material.channels.AlbedoPBR ??

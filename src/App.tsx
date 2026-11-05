@@ -7,17 +7,14 @@ import {
   Sparkles,
   Bell,
   Settings,
-  ChevronDown,
   ArrowUpRight,
   WifiOff,
   Download,
-  ShieldCheck,
   Menu,
-  PanelLeftClose,
+  X,
 } from "lucide-react";
 import { useGarage } from "./lib/store";
 import type { Tab } from "./lib/types";
-import { photos } from "./lib/types";
 import { dueAlerts } from "./lib/reminders";
 import { Home } from "./features/Home";
 import { Care } from "./features/Care";
@@ -105,126 +102,23 @@ export default function App() {
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <aside className={`sidebar ${sidebar ? "mobile-open" : ""}`}>
-        <button
-          className="brand"
-          onClick={() => navigate("home")}
-          aria-label="My Garage home"
-        >
-          <span className="brand-icon">
-            <MazdaIcon size={25} strokeWidth={1.3} />
-          </span>
-          <span>
-            MY GARAGE<small>YOUR MAZDA COMPANION</small>
-          </span>
-        </button>
-        <div className="sidebar-label">YOUR COMPANION</div>
-        <nav aria-label="Main navigation">
-          {nav.map((n) => (
-            <button
-              key={n.id}
-              aria-current={route.tab === n.id ? "page" : undefined}
-              className={`nav-item ${route.tab === n.id ? "active" : ""}`}
-              onClick={() => navigate(n.id)}
-            >
-              <n.icon size={19} strokeWidth={1.6} />
-              <span>{n.label}</span>
-              {n.id === "care" && alerts.length > 0 && <b>{alerts.length}</b>}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-garage">
-          <div className="sidebar-car-image">
-            <img src={data.vehicle.photo || photos[0]} alt="Your Mazda3" />
-          </div>
-          <span className="eyebrow">PARKED IN YOUR GARAGE</span>
-          <strong>
-            {data.vehicle.specs.Year} {data.vehicle.specs.Model}
-          </strong>
-          <small>{data.vehicle.specs.Exterior}</small>
-          <button
-            className="text-button"
-            onClick={() => open({ type: "profile" })}
-          >
-            Vehicle details
-            <ArrowUpRight size={14} />
-          </button>
-        </div>
-        <div className="sidebar-bottom">
-          {install && (
-            <button
-              onClick={async () => {
-                await install.prompt();
-                const result = await install.userChoice;
-                if (result.outcome === "accepted") {
-                  setInstall(null);
-                  toast("My Garage added to your device");
-                }
-              }}
-            >
-              <Download size={17} />
-              Install My Garage
-            </button>
-          )}
-          <button onClick={() => open({ type: "settings" })}>
-            <Settings size={17} />
-            Settings
-          </button>
-          <div>
-            <i className="status-dot green" />
-            LOCAL-FIRST. ALWAYS YOURS.
-          </div>
-        </div>
-      </aside>
-      {sidebar && (
-        <button
-          className="sidebar-overlay"
-          aria-label="Close navigation"
-          onClick={() => setSidebar(false)}
-        />
-      )}
       <div className="main-shell">
-        <header className="topbar">
-          <div className="topbar-left">
-            <button
-              className="icon-button mobile-menu"
-              aria-label="Open navigation"
-              onClick={() => setSidebar(true)}
-            >
-              <Menu size={21} />
-            </button>
-            <span className="topbar-greeting">YOUR DIGITAL GARAGE</span>
-            <span className="breadcrumb-separator">/</span>
-            <span>{nav.find((n) => n.id === route.tab)?.label}</span>
+        <header className="topbar collection-header">
+          <button className="collection-brand" onClick={() => navigate("home")} aria-label="My Garage home">
+            <MazdaIcon size={43} />
+            <span>MY GARAGE<small>THE MAZDA COLLECTION</small></span>
+          </button>
+          <nav className="collection-nav" aria-label="Main navigation">
+            {nav.map(n => <button key={n.id} aria-current={route.tab===n.id?"page":undefined} onClick={() => navigate(n.id)}>{n.label}<span aria-hidden="true" /></button>)}
+          </nav>
+          <div className="collection-tools">
+            <span className="collection-wordmark">MAZDA</span>
+            {install && <button className="icon-button collection-install" aria-label="Install My Garage" onClick={async () => {await install.prompt();const result=await install.userChoice;if(result.outcome==="accepted"){setInstall(null);toast("My Garage added to your device");}}}><Download size={18}/></button>}
+            <button className="notification-button icon-button" aria-label={"Care reminders, "+alerts.length+" due"} onClick={() => navigate("care","reminders")}><Bell size={18}/>{alerts.length>0&&<i/>}</button>
+            <button className="icon-button" aria-label="Open garage settings" onClick={() => open({type:"settings"})}><Settings size={18}/></button>
+            <button className="icon-button collection-menu" aria-label={sidebar?"Close navigation":"Open navigation"} aria-expanded={sidebar} onClick={() => setSidebar(!sidebar)}>{sidebar?<X size={21}/>:<Menu size={21}/>}</button>
           </div>
-          <div className="topbar-right">
-            <span className="today-label">
-              {new Date().toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
-            </span>
-            <span className="local-status">
-              <i className="status-dot green" />
-              {offline ? "OFFLINE · SAVED LOCALLY" : "SAVED ON THIS DEVICE"}
-            </span>
-            <button
-              className="notification-button icon-button"
-              aria-label={`Care reminders, ${alerts.length} due`}
-              onClick={() => navigate("care", "reminders")}
-            >
-              <Bell size={19} />
-              {alerts.length > 0 && <i />}
-            </button>
-            <button
-              className="avatar"
-              aria-label="Open garage settings"
-              onClick={() => open({ type: "settings" })}
-            >
-              MG
-            </button>
-          </div>
+          {sidebar && <nav className="collection-mobile-nav" aria-label="Compact navigation">{nav.map(n => <button key={n.id} aria-current={route.tab===n.id?"page":undefined} onClick={() => navigate(n.id)}>{n.label}<ArrowUpRight size={14}/></button>)}</nav>}
         </header>
         {offline && (
           <div className="offline-banner">

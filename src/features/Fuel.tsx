@@ -29,10 +29,12 @@ import {
   type OpenModal,
 } from "../components/ui";
 import { TrendChart } from "../components/Chart";
+import ministryPrices from "../data/officialFuelPrices.json";
 export function Fuel({ open }: { open: OpenModal }) {
   const { data } = useGarage();
   const [unit, setUnit] = useState("MPG (US)"),
-    [currency, setCurrency] = useState("USD");
+    [currency, setCurrency] = useState("USD"),
+    [officialRange, setOfficialRange] = useState("12M");
   const measurements = fuelMeasurements(data.fuel),
     l100 = weightedConsumption(measurements),
     month = dateInput(new Date()).slice(0, 7);
@@ -53,6 +55,21 @@ export function Fuel({ open }: { open: OpenModal }) {
     label: fmtDate(m.to.date).split(" ").slice(0, 2).join(" "),
     value: value(m.l100),
   }));
+  const paidPriceChart = data.fuel
+    .filter((fill) => fill.cost !== null && fill.currency === currency && fill.liters > 0)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.meters - b.meters)
+    .map((fill) => ({ label: fmtDate(fill.date).split(" ").slice(0, 2).join(" "), value: Number((fill.cost! / fill.liters).toFixed(3)) }));
+  const latestOfficial = ministryPrices.records.at(-1)!;
+  const rangeStart = new Date(`${latestOfficial.date}T12:00:00Z`);
+  if (officialRange !== "ALL")
+    rangeStart.setUTCMonth(rangeStart.getUTCMonth() - Number(officialRange));
+  const officialChart = ministryPrices.records
+    .filter((record) => officialRange === "ALL" || record.date >= rangeStart.toISOString().slice(0, 10))
+    .map((record) => ({
+      label: new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${record.date}T12:00:00Z`)),
+      value: record.lbpPer20L,
+    }));
+  const officialDate = new Intl.DateTimeFormat("en", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${latestOfficial.date}T12:00:00Z`));
   const priced = measurements.filter(
     (m) => m.cost !== null && m.to.currency === currency,
   );
@@ -211,6 +228,31 @@ export function Fuel({ open }: { open: OpenModal }) {
           </button>
         </section>
       </div>
+      <section className="panel official-price-history">
+        <div className="official-price-heading">
+          <SectionTitle eyebrow="OFFICIAL LEBANON SCHEDULE · 95 OCTANE" title="Published fuel prices" />
+          <div className="official-price-latest">
+            <strong>{latestOfficial.lbpPer20L.toLocaleString("en-US")} <small>LBP</small></strong>
+            <span>Latest published · {officialDate} · per 20 liters</span>
+          </div>
+        </div>
+        <div className="official-price-chart-head">
+          <p className="fuel-price-caption">Ministry rates are shown as published, in LBP per 20 liters. The latest available schedule may be older than today; this is a government reference, not a live pump quote.</p>
+          <div className="official-price-ranges" aria-label="Chart time range">
+            {[{ id: "12M", label: "12 months" }, { id: "24M", label: "2 years" }, { id: "ALL", label: "All history" }].map((range) => <button key={range.id} className={officialRange === range.id ? "active" : ""} aria-pressed={officialRange === range.id} onClick={() => setOfficialRange(range.id)}>{range.label}</button>)}
+          </div>
+        </div>
+        <TrendChart data={officialChart} unit="LBP per 20 liters" seriesName="Ministry schedule" />
+        <a className="text-button official-price-source" href={ministryPrices.sourceUrl} target="_blank" rel="noreferrer">View the Ministry’s price archive <ArrowUpRight size={15} /></a>
+      </section>
+      <section className="panel fuel-price-history">
+        <div className="fuel-price-heading">
+          <SectionTitle eyebrow="YOUR RECORDED PURCHASES" title="Your price per liter" />
+          <a className="text-button" href="https://www.energyandwater.gov.lb/ar/prices?type=1" target="_blank" rel="noreferrer">Official Lebanon fuel schedule <ArrowUpRight size={15} /></a>
+        </div>
+        <p className="fuel-price-caption">Calculated from your saved fill-ups and their recorded totals. USD and LBP are graphed separately. The Ministry publishes its rates in LBP per 20 liters; check its official site for the latest dated schedule.</p>
+        {paidPriceChart.length ? <TrendChart data={paidPriceChart} unit={`${currency} / liter`} /> : <Empty icon={TrendingUp} title="Your pump-price history starts with a fill-up" action="Log fuel" onAction={() => open({ type: "fuel" })}>Record the amount you paid and liters added. A separate price trend will appear here.</Empty>}
+      </section>
       <div className="three-columns fuel-extra">
         <div className="panel">
           <span className="eyebrow">BEST MEASURED CYCLE</span>

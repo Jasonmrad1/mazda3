@@ -10,6 +10,7 @@ import { useGarage } from "../lib/store";
 import { pressureTo, fmtDate, localDate } from "../lib/calculations";
 import { SectionTitle, Badge, Note, type OpenModal } from "../components/ui";
 import type { Tire, GarageData } from "../lib/types";
+import mazdaTopView from "../assets/mazda3-bp-top.png";
 export function tireTone(t: Tire, d: GarageData) {
   if (t.condition.startsWith("Unsafe")) return "red";
   if (
@@ -23,98 +24,7 @@ export function tireTone(t: Tire, d: GarageData) {
   return Math.abs(t.psi - d.vehicle.pressure) <= 1 ? "green" : "amber";
 }
 export function CarDiagram() {
-  return (
-    <svg className="car-diagram" viewBox="0 0 150 300" aria-hidden="true">
-      <defs>
-        <linearGradient id="body" x1="0" x2="1">
-          <stop offset="0" stopColor="#181f28" />
-          <stop offset="0.45" stopColor="#3d4653" />
-          <stop offset="0.6" stopColor="#353e49" />
-          <stop offset="1" stopColor="#151c24" />
-        </linearGradient>
-        <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#101820" />
-          <stop offset="1" stopColor="#242e39" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="75" cy="158" rx="65" ry="137" fill="#000" opacity=".25" />
-      <path
-        d="M32 30Q75 7 118 30L126 68L126 237Q122 267 110 275Q75 289 40 275Q28 268 24 237L24 68Z"
-        fill="url(#body)"
-        stroke="#59616b"
-        strokeWidth="1"
-      />
-      <path
-        d="M32 71Q75 47 118 71L110 111Q75 98 40 111Z"
-        fill="url(#glass)"
-        stroke="#626a75"
-        strokeWidth=".8"
-      />
-      <path
-        d="M40 119Q75 107 110 119L112 211Q75 225 38 211Z"
-        fill="#252d37"
-        stroke="#49515e"
-      />
-      <path
-        d="M39 222Q75 236 111 222L115 251Q75 272 35 251Z"
-        fill="url(#glass)"
-        stroke="#5c6370"
-      />
-      <path
-        d="M32 87L32 235M118 87L118 235M75 31V56"
-        stroke="#7d8796"
-        opacity=".3"
-      />
-      <path
-        d="M35 38L53 34M97 34L115 38"
-        stroke="#d9d9cb"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M34 262L48 267M102 267L116 262"
-        stroke="#9e2431"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <rect
-        x="16"
-        y="77"
-        width="8"
-        height="39"
-        rx="3"
-        fill="#101419"
-        stroke="#4b5360"
-      />
-      <rect
-        x="126"
-        y="77"
-        width="8"
-        height="39"
-        rx="3"
-        fill="#101419"
-        stroke="#4b5360"
-      />
-      <rect
-        x="16"
-        y="216"
-        width="8"
-        height="39"
-        rx="3"
-        fill="#101419"
-        stroke="#4b5360"
-      />
-      <rect
-        x="126"
-        y="216"
-        width="8"
-        height="39"
-        rx="3"
-        fill="#101419"
-        stroke="#4b5360"
-      />
-    </svg>
-  );
+  return <img className="car-diagram" src={mazdaTopView} alt="Top-view technical drawing of a 2019 Mazda3 BP hatchback" />;
 }
 export function TireVisual({
   compact = false,
@@ -188,8 +98,9 @@ export function Tires({ open }: { open: OpenModal }) {
           </div>
           <TireVisual open={open} />
           <p className="diagram-label">
-            Illustrative vehicle diagram · select a wheel to record a check
+            2019 MAZDA3 HATCHBACK · PLAN VIEW · SELECT A WHEEL TO RECORD A CHECK
           </p>
+          <a className="diagram-source" href="https://www.dimensions.com/element/mazda3-hatchback-bp-4th-gen" target="_blank" rel="noreferrer">Mazda3 BP plan-view reference · Dimensions.com <ArrowUpRight size={11} /></a>
           <div className="pressure-reference">
             <ShieldCheck size={22} />
             <div>

@@ -361,12 +361,14 @@ input[type="checkbox"] {
   padding: 0;
   color: #ddd;
 }
-.showroom-brand > svg {
+.showroom-brand > svg,
+.showroom-brand > img {
   height: 37px;
   width: 37px;
-  padding: 6px;
-  border: 1px solid #66666680;
-  border-radius: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  object-fit: contain;
   color: #ccc;
 }
 .showroom-brand > span {
@@ -1006,7 +1008,7 @@ input[type="checkbox"] {
 @media (max-width: 760px) {
   .showroom-hero {
     height: calc(100svh - 65px);
-    min-height: 750px;
+    min-height: 710px;
     max-height: 1000px;
   }
   .showroom-header {
@@ -1020,11 +1022,13 @@ input[type="checkbox"] {
   .showroom-brand {
     gap: 9px;
   }
-  .showroom-brand > svg {
+  .showroom-brand > svg,
+  .showroom-brand > img {
     width: 31px;
     height: 32px;
-    border-radius: 7px;
-    padding: 5px;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
   }
   .showroom-brand > span {
     font-size: 11px;
@@ -1181,7 +1185,7 @@ input[type="checkbox"] {
     left: auto;
     right: 23px;
     bottom: auto;
-    top: calc(43% + 35px);
+    top: calc(69px + clamp(285px, 43svh, 360px) + 8px);
     transform: none;
     padding: 3px;
     z-index: 6;
@@ -1200,7 +1204,14 @@ input[type="checkbox"] {
     height: 14px;
   }
   .hero-studio .studio-hint {
-    display: none;
+    display: flex;
+    left: 24px;
+    right: auto;
+    bottom: auto;
+    top: calc(69px + clamp(285px, 43svh, 360px) + 15px);
+    font-size: 8px;
+    letter-spacing: .2px;
+    z-index: 5;
   }
   .hero-studio .studio-source {
     bottom: 28px;
@@ -1345,7 +1356,7 @@ input[type="checkbox"] {
 }
 @media (max-width: 420px) {
   .showroom-hero {
-    min-height: 735px;
+    min-height: 710px;
   }
   .showroom-header {
     padding: 0 19px;
@@ -1420,7 +1431,7 @@ input[type="checkbox"] {
   }
   .hero-studio .studio-controls {
     right: 18px;
-    top: calc(43% + 28px);
+    top: calc(69px + clamp(285px, 43svh, 360px) + 8px);
   }
   .hero-studio .studio-controls button {
     min-width: 27px;

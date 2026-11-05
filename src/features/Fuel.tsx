@@ -89,10 +89,16 @@ export function Fuel({ open }: { open: OpenModal }) {
     ? [...fuelPriceHistory.records.filter((record) => record.date !== iptRate.date), iptRate].sort((a, b) => a.date.localeCompare(b.date))
     : fuelPriceHistory.records;
   const rangeStart = new Date(`${latestRate.date}T12:00:00Z`);
-  if (officialRange !== "ALL")
-    rangeStart.setUTCMonth(rangeStart.getUTCMonth() - Number(officialRange));
+  if (officialRange !== "ALL") {
+    const months = Number.parseInt(officialRange, 10);
+    if (Number.isFinite(months))
+      rangeStart.setUTCMonth(rangeStart.getUTCMonth() - months);
+  }
+  const rangeCutoff = Number.isFinite(rangeStart.getTime())
+    ? rangeStart.toISOString().slice(0, 10)
+    : latestArchive.date;
   const officialChart = archiveWithLiveRate
-    .filter((record) => officialRange === "ALL" || record.date >= rangeStart.toISOString().slice(0, 10))
+    .filter((record) => officialRange === "ALL" || record.date >= rangeCutoff)
     .map((record) => ({
       label: new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${record.date}T12:00:00Z`)),
       value: record.lbpPer20L,

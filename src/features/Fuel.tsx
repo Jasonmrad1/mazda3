@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Fuel as FuelIcon,
   Plus,
@@ -29,12 +29,36 @@ import {
   type OpenModal,
 } from "../components/ui";
 import { TrendChart } from "../components/Chart";
-import ministryPrices from "../data/officialFuelPrices.json";
+import fuelPriceHistory from "../data/lebanonFuelHistory.json";
+const iptFuelPricesUrl = "https://www.iptgroup.com.lb/ipt/en/our-stations/fuel-prices";
 export function Fuel({ open }: { open: OpenModal }) {
   const { data } = useGarage();
   const [unit, setUnit] = useState("MPG (US)"),
     [currency, setCurrency] = useState("USD"),
-    [officialRange, setOfficialRange] = useState("12M");
+    [officialRange, setOfficialRange] = useState("12M"),
+    [iptRate, setIptRate] = useState<{ date: string; lbpPer20L: number } | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    fetch(iptFuelPricesUrl, { signal: controller.signal, credentials: "omit", cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error("IPT fuel prices are unavailable");
+        return response.text();
+      })
+      .then((html) => {
+        const rate = html.match(/id="[^"]*tr95Octane"[\s\S]*?<strong[^>]*>([\d,]+)/i);
+        const date = html.match(/Weekly Fuel Prices<\/strong><\/span>\s*<span[^>]*>(\d{2})\s*\/\s*(\d{2})\s*\/\s*(\d{4})/i);
+        if (!rate || !date) throw new Error("IPT price format was not recognized");
+        setIptRate({ date: `${date[3]}-${date[2]}-${date[1]}`, lbpPer20L: Number(rate[1].replaceAll(",", "")) });
+      })
+      .catch(() => {
+        // Keep the saved history available offline or if the retailer page changes.
+      });
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, []);
   const measurements = fuelMeasurements(data.fuel),
     l100 = weightedConsumption(measurements),
     month = dateInput(new Date()).slice(0, 7);
@@ -59,17 +83,21 @@ export function Fuel({ open }: { open: OpenModal }) {
     .filter((fill) => fill.cost !== null && fill.currency === currency && fill.liters > 0)
     .sort((a, b) => a.date.localeCompare(b.date) || a.meters - b.meters)
     .map((fill) => ({ label: fmtDate(fill.date).split(" ").slice(0, 2).join(" "), value: Number((fill.cost! / fill.liters).toFixed(3)) }));
-  const latestOfficial = ministryPrices.records.at(-1)!;
-  const rangeStart = new Date(`${latestOfficial.date}T12:00:00Z`);
+  const latestArchive = fuelPriceHistory.records.at(-1)!;
+  const latestRate = iptRate ?? latestArchive;
+  const archiveWithLiveRate = iptRate && iptRate.date >= latestArchive.date
+    ? [...fuelPriceHistory.records.filter((record) => record.date !== iptRate.date), iptRate].sort((a, b) => a.date.localeCompare(b.date))
+    : fuelPriceHistory.records;
+  const rangeStart = new Date(`${latestRate.date}T12:00:00Z`);
   if (officialRange !== "ALL")
     rangeStart.setUTCMonth(rangeStart.getUTCMonth() - Number(officialRange));
-  const officialChart = ministryPrices.records
+  const officialChart = archiveWithLiveRate
     .filter((record) => officialRange === "ALL" || record.date >= rangeStart.toISOString().slice(0, 10))
     .map((record) => ({
       label: new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(`${record.date}T12:00:00Z`)),
       value: record.lbpPer20L,
     }));
-  const officialDate = new Intl.DateTimeFormat("en", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${latestOfficial.date}T12:00:00Z`));
+  const officialDate = new Intl.DateTimeFormat("en", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${latestRate.date}T12:00:00Z`));
   const priced = measurements.filter(
     (m) => m.cost !== null && m.to.currency === currency,
   );
@@ -230,20 +258,24 @@ export function Fuel({ open }: { open: OpenModal }) {
       </div>
       <section className="panel official-price-history">
         <div className="official-price-heading">
-          <SectionTitle eyebrow="OFFICIAL LEBANON SCHEDULE · 95 OCTANE" title="Published fuel prices" />
+          <SectionTitle eyebrow="LEBANON FUEL REFERENCE · 95 OCTANE" title="Fuel prices in Lebanon" />
           <div className="official-price-latest">
-            <strong>{latestOfficial.lbpPer20L.toLocaleString("en-US")} <small>LBP</small></strong>
-            <span>Latest published · {officialDate} · per 20 liters</span>
+            <strong>{latestRate.lbpPer20L.toLocaleString("en-US")} <small>LBP</small></strong>
+            <span>{iptRate ? "IPT latest weekly rate" : "Saved archive rate"} · {officialDate} · per 20 liters</span>
           </div>
         </div>
         <div className="official-price-chart-head">
-          <p className="fuel-price-caption">Ministry rates are shown as published, in LBP per 20 liters. The latest available schedule may be older than today; this is a government reference, not a live pump quote.</p>
+          <p className="fuel-price-caption">{iptRate ? "The latest weekly 95-octane rate loads directly from IPT while online." : "IPT could not be reached; showing the saved historical archive rate."} The chart uses TheFuelPrice.com’s historical reference archive, with the current IPT point shown when newer. Check the station for its actual pump price.</p>
           <div className="official-price-ranges" aria-label="Chart time range">
             {[{ id: "12M", label: "12 months" }, { id: "24M", label: "2 years" }, { id: "ALL", label: "All history" }].map((range) => <button key={range.id} className={officialRange === range.id ? "active" : ""} aria-pressed={officialRange === range.id} onClick={() => setOfficialRange(range.id)}>{range.label}</button>)}
           </div>
         </div>
-        <TrendChart data={officialChart} unit="LBP per 20 liters" seriesName="Ministry schedule" />
-        <a className="text-button official-price-source" href={ministryPrices.sourceUrl} target="_blank" rel="noreferrer">View the Ministry’s price archive <ArrowUpRight size={15} /></a>
+        <TrendChart data={officialChart} unit="LBP per 20 liters" seriesName={iptRate ? "IPT + reference archive" : "Reference archive"} />
+        <div className="fuel-reference-links">
+          <a className="text-button official-price-source" href={iptFuelPricesUrl} target="_blank" rel="noreferrer">IPT weekly fuel prices <ArrowUpRight size={15} /></a>
+          <a className="text-button official-price-source" href={fuelPriceHistory.sourceUrl} target="_blank" rel="noreferrer">TheFuelPrice historical archive <ArrowUpRight size={15} /></a>
+          <a className="text-button official-price-source" href="https://www.energyandwater.gov.lb/ar/prices?type=1" target="_blank" rel="noreferrer">Ministry schedule <ArrowUpRight size={15} /></a>
+        </div>
       </section>
       <section className="panel fuel-price-history">
         <div className="fuel-price-heading">

@@ -79,6 +79,8 @@
 .official-price-ranges button { color:var(--muted); min-height:40px; font-size:9px; border-bottom:1px solid transparent; margin-bottom:-1px; }
 .official-price-ranges button.active { color:var(--text); border-color:var(--text); }
 .official-price-source { margin-top:8px; }
+.fuel-reference-links { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:8px; }
+.fuel-reference-links .official-price-source { margin-top:0; }
 .diagram-source { display:flex; justify-content:center; align-items:center; gap:5px; color:var(--muted); font-size:8px; margin-top:-8px; }
 .diagram-source:hover { color:var(--text); }
 :root[data-theme="light"] .bottom-nav>button.active { color:#171717; }
@@ -112,6 +114,7 @@
   .official-price-chart-head { align-items:flex-start; flex-direction:column; gap:6px; }
   .official-price-ranges { gap:16px; }
   .official-price-ranges button { font-size:8px; }
+  .fuel-reference-links { flex-direction:column; align-items:flex-start; gap:8px; }
   .tab-strip { gap:23px; }
   .tab-strip>button { font-size:10px; white-space:nowrap; }
   .stat-card { padding:20px 16px; }

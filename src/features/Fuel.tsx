@@ -90,9 +90,13 @@ export function Fuel({ open }: { open: OpenModal }) {
     : fuelPriceHistory.records;
   const rangeStart = new Date(`${latestRate.date}T12:00:00Z`);
   if (officialRange !== "ALL") {
-    const months = Number.parseInt(officialRange, 10);
-    if (Number.isFinite(months))
-      rangeStart.setUTCMonth(rangeStart.getUTCMonth() - months);
+    if (officialRange === "7D") {
+      rangeStart.setUTCDate(rangeStart.getUTCDate() - 7);
+    } else {
+      const months = Number.parseInt(officialRange, 10);
+      if (Number.isFinite(months))
+        rangeStart.setUTCMonth(rangeStart.getUTCMonth() - months);
+    }
   }
   const rangeCutoff = Number.isFinite(rangeStart.getTime())
     ? rangeStart.toISOString().slice(0, 10)
@@ -273,7 +277,7 @@ export function Fuel({ open }: { open: OpenModal }) {
         <div className="official-price-chart-head">
           <p className="fuel-price-caption">{iptRate ? "The latest weekly 95-octane rate loads directly from IPT while online." : "IPT could not be reached; showing the saved historical archive rate."} The chart uses TheFuelPrice.com’s historical reference archive, with the current IPT point shown when newer. Check the station for its actual pump price.</p>
           <div className="official-price-ranges" aria-label="Chart time range">
-            {[{ id: "12M", label: "12 months" }, { id: "24M", label: "2 years" }, { id: "ALL", label: "All history" }].map((range) => <button key={range.id} className={officialRange === range.id ? "active" : ""} aria-pressed={officialRange === range.id} onClick={() => setOfficialRange(range.id)}>{range.label}</button>)}
+            {[{ id: "7D", label: "1 week" }, { id: "12M", label: "12 months" }, { id: "24M", label: "2 years" }, { id: "ALL", label: "All history" }].map((range) => <button key={range.id} className={officialRange === range.id ? "active" : ""} aria-pressed={officialRange === range.id} onClick={() => setOfficialRange(range.id)}>{range.label}</button>)}
           </div>
         </div>
         <TrendChart data={officialChart} unit="LBP per 20 liters" seriesName={iptRate ? "IPT + reference archive" : "Reference archive"} />

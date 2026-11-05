@@ -154,6 +154,20 @@ export function Tires({ open }: { open: OpenModal }) {
   const [unit, setUnit] = useState("PSI");
   return (
     <div className="tires-center">
+      <div className="tire-quick-banner">
+        <div>
+          <span className="eyebrow">THE MONTHLY ROUTINE, MADE SIMPLE</span>
+          <h3>All four tires. One quick log.</h3>
+          <p>Cold pressures, recorded together. Details can come later.</p>
+        </div>
+        <button
+          className="button primary"
+          onClick={() => open({ type: "tire-check" })}
+        >
+          <CircleDot size={17} />
+          Check all four tires
+        </button>
+      </div>
       <div className="two-columns">
         <section className="panel">
           <SectionTitle

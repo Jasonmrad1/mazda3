@@ -1,0 +1,13 @@
+import {chromium} from '@playwright/test';
+const browser=await chromium.launch({channel:'chrome',headless:true,args:['--ignore-gpu-blocklist','--use-angle=d3d11']});
+const page=await browser.newPage({viewport:{width:1440,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+page.on('requestfailed',r=>console.log('REQUEST FAILED',r.url().slice(0,150),r.failure()?.errorText));
+page.on('console',m=>{if(m.type()==='error')console.log('BROWSER ERROR',m.text().slice(0,300));});
+await page.goto('http://127.0.0.1:5173');await page.getByRole('button',{name:'Explore first',exact:true}).click();await page.waitForTimeout(600);await page.screenshot({path:'tests/premium-desktop.png',fullPage:true});
+await page.getByRole('button',{name:'Explore in 3D',exact:true}).click();
+try{await page.locator('iframe.ready').waitFor({timeout:60000});}catch{console.log(JSON.stringify({sdk:await page.evaluate(()=>!!window.Sketchfab),frames:page.frames().map(f=>f.url()),state:await page.locator('.studio-stage').innerText(),errors}));await page.screenshot({path:'tests/premium-studio-error.png'});await browser.close();process.exit(1);}await page.waitForTimeout(2000);await page.screenshot({path:'tests/premium-studio.png',fullPage:true});
+console.log(JSON.stringify({modelReady:true,blackPaint:await page.getByText('Black body finish applied',{exact:false}).count(),errors}));
+await page.getByRole('button',{name:'Rotate car right',exact:true}).click();await page.waitForTimeout(1000);await page.screenshot({path:'tests/premium-studio-rotated.png'});
+await page.getByRole('button',{name:'My photos',exact:true}).click();await page.setViewportSize({width:390,height:844});await page.waitForTimeout(400);await page.screenshot({path:'tests/premium-mobile.png',fullPage:true});
+await page.getByRole('button',{name:'Log fuel',exact:true}).click();await page.screenshot({path:'tests/premium-fuel-form.png',fullPage:true});
+console.log(JSON.stringify({mobileOverflow:await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)}));await browser.close();

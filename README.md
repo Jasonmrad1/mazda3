@@ -24,6 +24,16 @@ For browser tests against the production build, set `TEST_BASE_URL=http://127.0.
 
 ## What works
 
+The November refinement adds simpler Home / Care / Fuel / Garage / Assistant navigation, four prominent everyday actions, short forms with expandable optional details, an essential-care default with the complete inspection catalog still accessible, and a single four-tire pressure form. Entered mileage is preserved across input-unit changes.
+
+### Whole-car 3D explorer
+
+Home → **Explore in 3D** loads the official Sketchfab viewer for [Martin Trafas’s Mazda 3 Hatchback (2019)](https://sketchfab.com/3d-models/mazda-3-hatchback-2019-ac74d76719114f809edfb118d350089d). The body shape was visually checked against the supplied BP hatchback photographs. It provides real orbit/zoom interaction, camera reset, rotation buttons and fullscreen; a black body material is applied through the documented Viewer API when the named paint material is available. Exact wheels, trim and interior are not verified, and it is not a certified digital twin. Your actual photographs remain the default.
+
+The listing is editorial and not downloadable; this app embeds the publisher’s hosted viewer with attribution and does not extract or redistribute model binaries. The in-app model catalog also links to HKV Studios’ exterior/interior listing and fisherman3d’s licensed-file option, with their listed prices and license caveats. No purchase was made. A locally bundled model would require an appropriately licensed file and optimization.
+
+The 3D viewer requires internet, WebGL and browser graphics support. It loads only after selecting 3D, sets Sketchfab’s `dnt=1` parameter, limits textures to 1024px on small screens / 2048px on larger screens, and does not send vehicle history, VIN or uploaded files. Photos and core care tools stay available if it cannot load. Browser QA confirmed a real model load, paint callback and camera rotation using hardware-accelerated Chrome; software-rendered/headless environments may be rejected by Sketchfab. Loading, connection-error, graphics-error and offline fallback states are implemented.
+
 - Responsive five-section cockpit, real vehicle gallery, editable profile and black interior, onboarding, dark and light themes, reduced-motion support.
 - Canonical integer-meter distance storage, preserved original reading units, chronological validation and corrections through editable records. Approximate starting mileage is labeled; it is not a confirmed reading.
 - Sourced US normal/severe oil schedules, time/distance deadlines, custom intervals, a broad inspection tracker, service records, attachments and timeline. Unknown history remains incomplete.

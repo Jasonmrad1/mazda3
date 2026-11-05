@@ -39,7 +39,8 @@ export function Care({
   const { data, update, toast } = useGarage();
   const [section, setSection] = useState(initialSection),
     [query, setQuery] = useState(""),
-    [category, setCategory] = useState("All categories");
+    [category, setCategory] = useState("All categories"),
+    [showAll, setShowAll] = useState(false);
   const tasks = careTasks(data),
     alerts = dueAlerts(data);
   const categories = [
@@ -48,6 +49,12 @@ export function Care({
   ];
   const filtered = tasks.filter(
     (t) =>
+      (showAll ||
+        query ||
+        category !== "All categories" ||
+        !!t.miles ||
+        !!t.months ||
+        !!t.days) &&
       (category === "All categories" || t.category === category) &&
       (t.name + " " + t.category).toLowerCase().includes(query.toLowerCase()),
   );
@@ -294,10 +301,10 @@ export function Care({
                   ? "Severe-driving oil schedule"
                   : "Normal driving profile"}
               </Badge>
-              <h3>Good care begins with good records.</h3>
+              <h3>A few small steps. A better-kept Mazda.</h3>
               <p>
-                No service dates are assumed. Add what you know and let your
-                garage take it from there.
+                Start with your oil service and tire checks. Add the history you
+                know; your garage handles the next due dates.
               </p>
             </div>
             <button
@@ -340,29 +347,42 @@ export function Care({
               return (
                 <section className="panel maintenance-item" key={t.id}>
                   <CareRow due={due} open={open} />
-                  <div className="task-detail">
-                    <div>
-                      <Badge tone={t.official ? "muted" : "amber"}>
-                        {t.official
-                          ? "Mazda schedule"
-                          : t.reference.startsWith("User")
-                            ? "Your custom schedule"
-                            : "Advisory / tracking"}
-                      </Badge>
-                      <p>{t.reason}</p>
-                      <span className="source-caption">{t.reference}</span>
+                  <details className="task-explanation">
+                    <summary>Why this matters & schedule details</summary>
+                    <div className="task-detail">
+                      <div>
+                        <Badge tone={t.official ? "muted" : "amber"}>
+                          {t.official
+                            ? "Mazda schedule"
+                            : t.reference.startsWith("User")
+                              ? "Your custom schedule"
+                              : "Advisory / tracking"}
+                        </Badge>
+                        <p>{t.reason}</p>
+                        <span className="source-caption">{t.reference}</span>
+                      </div>
+                      <button
+                        className="text-button"
+                        onClick={() => open({ type: "task", id: t.id })}
+                      >
+                        Customize interval
+                      </button>
                     </div>
-                    <button
-                      className="text-button"
-                      onClick={() => open({ type: "task", id: t.id })}
-                    >
-                      Customize interval
-                    </button>
-                  </div>
+                  </details>
                 </section>
               );
             })}
           </div>
+          {!query && category === "All categories" && (
+            <button
+              className="button secondary care-catalog-toggle"
+              onClick={() => setShowAll((v) => !v)}
+            >
+              {showAll
+                ? "Show essential care only"
+                : `Show all ${tasks.length} care & inspection items`}
+            </button>
+          )}
           {!filtered.length && (
             <Empty icon={Search} title="No matching care items">
               Try another name or category.

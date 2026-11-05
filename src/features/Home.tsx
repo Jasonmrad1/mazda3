@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -15,6 +16,8 @@ import {
   Camera,
   MapPin,
   ArrowRight,
+  Box,
+  ChevronDown,
 } from "lucide-react";
 import { useGarage } from "../lib/store";
 import { photos, type Tab } from "../lib/types";
@@ -41,6 +44,7 @@ import {
   type OpenModal,
 } from "../components/ui";
 import { TireVisual } from "./Tires";
+import { CarStudio } from "./CarStudio";
 
 export function CareRow({ due, open }: { due: Deadline; open: OpenModal }) {
   const { data } = useGarage();
@@ -112,6 +116,7 @@ export function Home({
   navigate: (tab: Tab, section?: string) => void;
 }) {
   const { data, update } = useGarage();
+  const [showcase, setShowcase] = useState<"photos" | "3d">("photos");
   const unit = data.vehicle.unit,
     meters = displayMeters(data),
     confirmed = confirmedMeters(data) !== null;
@@ -166,101 +171,126 @@ export function Home({
           <h1>
             Every mile, considered<span className="red-dot">.</span>
           </h1>
-          <p>Your car. Perfectly cared for.</p>
+          <p>Your Mazda. Everything you need, beautifully in reach.</p>
         </div>
-        <button
-          className="button secondary desktop-add"
-          onClick={() => open({ type: "service" })}
-        >
-          <Plus size={16} />
-          Record service
-        </button>
+        <span className="mazda-signature">
+          MAZDA<span>CRAFTED AROUND YOU</span>
+        </span>
       </div>
-      <section className="car-hero" aria-label="Your Mazda3 showcase">
-        <div
-          className="hero-photo"
-          key={data.vehicle.photo || data.vehicle.photoIndex}
-        >
-          <img
-            src={data.vehicle.photo || photos[data.vehicle.photoIndex]}
-            alt="Your actual black 2019 Mazda3 Hatchback"
-          />
+      <div className="showcase-toolbar">
+        <span>
+          <span className="showcase-small-line" />
+          {data.vehicle.specs.Year} MAZDA3
+          <span className="showcase-subtitle">YOUR PERSONAL GARAGE</span>
+        </span>
+        <div className="showcase-switch" aria-label="Car showcase view">
+          <button
+            className={showcase === "photos" ? "active" : ""}
+            aria-pressed={showcase === "photos"}
+            onClick={() => setShowcase("photos")}
+          >
+            <Camera size={15} />
+            My photos
+          </button>
+          <button
+            className={showcase === "3d" ? "active" : ""}
+            aria-pressed={showcase === "3d"}
+            onClick={() => setShowcase("3d")}
+          >
+            <Box size={15} />
+            Explore in 3D
+          </button>
         </div>
-        <div className="hero-scrim" />
-        <div className="hero-content">
-          <Badge tone="glass">YOUR PERSONAL GARAGE</Badge>
-          <p className="hero-year">
-            {data.vehicle.specs.Year} ·{" "}
-            {data.vehicle.specs.Manufacturer.toUpperCase()}
-          </p>
-          <h2>
-            {data.vehicle.specs.Model.split(" ")[0]}
-            <br />
-            <span>
-              {data.vehicle.specs.Model.replace(/^\S+\s*/, "").toUpperCase()}
-            </span>
-          </h2>
-          <p className="hero-engine">
-            {data.vehicle.specs.Engine.split(" naturally")[0]}
-          </p>
-          <div className="hero-color">
-            <i />
-            {data.vehicle.specs.Exterior}
-            <span> / </span>
-            {data.vehicle.specs.Interior} interior
+      </div>
+      {showcase === "3d" ? (
+        <CarStudio onPhotos={() => setShowcase("photos")} />
+      ) : (
+        <section className="car-hero" aria-label="Your Mazda3 showcase">
+          <div
+            className="hero-photo"
+            key={data.vehicle.photo || data.vehicle.photoIndex}
+          >
+            <img
+              src={data.vehicle.photo || photos[data.vehicle.photoIndex]}
+              alt="Your actual black 2019 Mazda3 Hatchback"
+            />
           </div>
-          <button
-            className="hero-details"
-            onClick={() => open({ type: "profile" })}
-          >
-            Explore your car
-            <ArrowUpRight size={17} />
-          </button>
-        </div>
-        <div className="hero-top-right">
-          <MapPin size={13} />
-          {data.vehicle.specs.Country}
-        </div>
-        <div className="hero-gallery">
-          <button
-            aria-label="Previous car photo"
-            onClick={() =>
-              void update((d) => {
-                d.vehicle.photo = "";
-                d.vehicle.photoIndex = (d.vehicle.photoIndex + 3) % 4;
-              })
-            }
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <span>
-            {String(data.vehicle.photoIndex + 1).padStart(2, "0")}
-            <i>/</i>04
-          </span>
-          <button
-            aria-label="Next car photo"
-            onClick={() =>
-              void update((d) => {
-                d.vehicle.photo = "";
-                d.vehicle.photoIndex = (d.vehicle.photoIndex + 1) % 4;
-              })
-            }
-          >
-            <ChevronRight size={16} />
-          </button>
-          <button
-            aria-label="Change car photograph"
-            onClick={() => open({ type: "profile" })}
-          >
-            <Camera size={16} />
-          </button>
-        </div>
-        <div className="hero-caption">
-          <span className="tiny-line" />
-          THE BEAUTY OF OWNERSHIP
-        </div>
-      </section>
-      <div className="dashboard-stats">
+          <div className="hero-scrim" />
+          <div className="hero-content">
+            <Badge tone="glass">THE ART OF MOVING YOU</Badge>
+            <p className="hero-year">
+              {data.vehicle.specs.Year} ·{" "}
+              {data.vehicle.specs.Manufacturer.toUpperCase()}
+            </p>
+            <h2>
+              {data.vehicle.specs.Model.split(" ")[0]}
+              <br />
+              <span>
+                {data.vehicle.specs.Model.replace(/^\S+\s*/, "").toUpperCase()}
+              </span>
+            </h2>
+            <p className="hero-engine">
+              {data.vehicle.specs.Engine.split(" naturally")[0]}
+            </p>
+            <div className="hero-color">
+              <i />
+              {data.vehicle.specs.Exterior}
+              <span> / </span>
+              {data.vehicle.specs.Interior} interior
+            </div>
+            <button
+              className="hero-details"
+              onClick={() => open({ type: "profile" })}
+            >
+              Explore your car
+              <ArrowUpRight size={17} />
+            </button>
+          </div>
+          <div className="hero-top-right">
+            <MapPin size={13} />
+            {data.vehicle.specs.Country}
+          </div>
+          <div className="hero-gallery">
+            <button
+              aria-label="Previous car photo"
+              onClick={() =>
+                void update((d) => {
+                  d.vehicle.photo = "";
+                  d.vehicle.photoIndex = (d.vehicle.photoIndex + 3) % 4;
+                })
+              }
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span>
+              {String(data.vehicle.photoIndex + 1).padStart(2, "0")}
+              <i>/</i>04
+            </span>
+            <button
+              aria-label="Next car photo"
+              onClick={() =>
+                void update((d) => {
+                  d.vehicle.photo = "";
+                  d.vehicle.photoIndex = (d.vehicle.photoIndex + 1) % 4;
+                })
+              }
+            >
+              <ChevronRight size={16} />
+            </button>
+            <button
+              aria-label="Change car photograph"
+              onClick={() => open({ type: "profile" })}
+            >
+              <Camera size={16} />
+            </button>
+          </div>
+          <div className="hero-caption">
+            <span className="tiny-line" />
+            THE BEAUTY OF OWNERSHIP
+          </div>
+        </section>
+      )}
+      <div className="dashboard-stats home-vital-stats">
         <button
           className="stat-card odometer-stat"
           onClick={() => open({ type: "mileage" })}
@@ -314,23 +344,8 @@ export function Home({
           }
           icon={Fuel}
         />
-        <Stat
-          label="THIS MONTH’S SPEND"
-          value={
-            expenseRecords.length
-              ? money(expenseRecords.reduce((s, v) => s + v, 0))
-              : "—"
-          }
-          detail={
-            expenseRecords.length
-              ? "Recorded expenses · USD only"
-              : "A fresh start. No expenses recorded."
-          }
-          icon={Wallet}
-        />
       </div>
-      <div className="quick-actions">
-        <span className="eyebrow">QUICK ADD</span>
+      <div className="quick-actions easy-actions">
         {[
           {
             label: "Log fuel",
@@ -350,18 +365,13 @@ export function Home({
           {
             label: "Check tires",
             icon: CircleDot,
-            action: () => navigate("care", "tires"),
-          },
-          {
-            label: "Ask assistant",
-            icon: Sparkles,
-            action: () => navigate("assistant"),
+            action: () => open({ type: "tire-check" }),
           },
         ].map(({ label, icon: Icon, action }) => (
           <button key={label} onClick={action}>
             <Icon size={17} strokeWidth={1.5} />
             {label}
-            <Plus size={13} />
+            <ArrowUpRight size={16} />
           </button>
         ))}
       </div>
@@ -369,7 +379,7 @@ export function Home({
         <section className="panel maintenance-panel">
           <SectionTitle
             eyebrow="THE ROAD AHEAD"
-            title="Upcoming care"
+            title="Your next care steps"
             action="View all"
             onAction={() => navigate("care")}
           />
@@ -400,63 +410,72 @@ export function Home({
           </div>
         </section>
       </div>
-      <div className="home-bottom">
-        <button
-          className="driving-card"
-          onClick={() => open({ type: "learn", subject: "potholes" })}
-        >
-          <div className="driving-image">
-            <img src="/images/mazda_rear.jpeg" alt="Rear view of your Mazda3" />
-          </div>
-          <div>
-            <span className="eyebrow">MADE FOR YOUR ROADS</span>
-            <h3>
-              Protect the wheels.
-              <br />
-              Enjoy the drive.
-            </h3>
-            <p>A little know-how for Lebanon’s less predictable roads.</p>
-            <span className="text-button">
-              Explore driving care
-              <ArrowUpRight size={15} />
-            </span>
-          </div>
-        </button>
-        <section className="panel small-insights">
-          <SectionTitle
-            eyebrow="OWNERSHIP, UNDERSTOOD"
-            title="Your month, at a glance"
-          />
-          <div>
-            <span>
-              Recorded distance<span className="tiny-tag">OBSERVED</span>
-            </span>
-            <strong>{formatDistance(distance, unit)}</strong>
-          </div>
-          <div>
-            <span>
-              Fuel expenses<span className="tiny-tag">USD</span>
-            </span>
-            <strong>
-              {data.fuel.some(
-                (f) =>
-                  f.date.startsWith(month) &&
-                  f.cost !== null &&
-                  f.currency === "USD",
-              )
-                ? money(fuelSpend)
-                : "—"}
-            </strong>
-          </div>
+      <details className="home-more">
+        <summary>
+          Ownership insights & driving guides
+          <ChevronDown size={17} />
+        </summary>
+        <div className="home-bottom">
           <button
-            className="text-button"
-            onClick={() => navigate("garage", "expenses")}
+            className="driving-card"
+            onClick={() => open({ type: "learn", subject: "potholes" })}
           >
-            See ownership insights
-            <ArrowUpRight size={14} />
+            <div className="driving-image">
+              <img
+                src="/images/mazda_rear.jpeg"
+                alt="Rear view of your Mazda3"
+              />
+            </div>
+            <div>
+              <span className="eyebrow">MADE FOR YOUR ROADS</span>
+              <h3>
+                Protect the wheels.
+                <br />
+                Enjoy the drive.
+              </h3>
+              <p>A little know-how for Lebanon’s less predictable roads.</p>
+              <span className="text-button">
+                Explore driving care
+                <ArrowUpRight size={15} />
+              </span>
+            </div>
           </button>
-        </section>
-      </div>
+          <section className="panel small-insights">
+            <SectionTitle
+              eyebrow="OWNERSHIP, UNDERSTOOD"
+              title="Your month, at a glance"
+            />
+            <div>
+              <span>
+                Recorded distance<span className="tiny-tag">OBSERVED</span>
+              </span>
+              <strong>{formatDistance(distance, unit)}</strong>
+            </div>
+            <div>
+              <span>
+                Fuel expenses<span className="tiny-tag">USD</span>
+              </span>
+              <strong>
+                {data.fuel.some(
+                  (f) =>
+                    f.date.startsWith(month) &&
+                    f.cost !== null &&
+                    f.currency === "USD",
+                )
+                  ? money(fuelSpend)
+                  : "—"}
+              </strong>
+            </div>
+            <button
+              className="text-button"
+              onClick={() => navigate("garage", "expenses")}
+            >
+              See ownership insights
+              <ArrowUpRight size={14} />
+            </button>
+          </section>
+        </div>
+      </details>
       <footer className="page-footer">
         <span>BUILT AROUND YOUR MAZDA.</span>
         <span>

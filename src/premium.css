@@ -1,0 +1,1622 @@
+/* Mazda-inspired: quiet surfaces, precise type, restrained garnet and silver. */
+:root {
+  --surface: #13171c;
+  --elevated: #1b2026;
+  --border: #2a2e35;
+  --muted: #9ca1aa;
+  --red: #a52d3d;
+}
+:root[data-theme="light"] {
+  --surface: #fff;
+  --elevated: #eceeec;
+  --border: #dbdeda;
+  --muted: #646d76;
+}
+.sidebar {
+  background: linear-gradient(180deg, #101318 0%, #0c0f13 70%);
+  border-right-color: #343038;
+}
+.brand-icon {
+  border-color: #6a5c61;
+  background: linear-gradient(145deg, #3e353a, #171b21);
+  color: #e3d5d9;
+}
+.nav-item.active {
+  background: linear-gradient(90deg, #54222e75, #351b2245);
+  border-color: #76424e75;
+}
+.nav-item.active:before {
+  height: 20px;
+  background: #e3a2ad;
+}
+.sidebar-garage {
+  border-top-color: #373038;
+}
+.topbar {
+  border-bottom-color: color-mix(in srgb, var(--border) 80%, transparent);
+}
+.topbar-greeting {
+  letter-spacing: 2px;
+}
+.page-heading {
+  margin-bottom: 29px;
+}
+.page-heading h1 {
+  font-weight: 350;
+  letter-spacing: -1.35px;
+}
+.page-heading p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.page-heading .eyebrow {
+  font-size: 8px;
+  letter-spacing: 2.6px;
+}
+.mazda-signature {
+  color: #d7d0d0;
+  letter-spacing: 5px;
+  font-size: 19px;
+  font-weight: 350;
+  text-align: right;
+  line-height: 1.4;
+}
+.mazda-signature > span {
+  display: block;
+  font-size: 6px;
+  letter-spacing: 2px;
+  color: #8d858a;
+  margin-top: 5px;
+}
+.showcase-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 13px;
+}
+.showcase-toolbar > span {
+  font-size: 11px;
+  letter-spacing: 2.3px;
+  color: var(--silver);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.showcase-small-line {
+  width: 23px;
+  height: 1px;
+  background: #ba7c86;
+}
+.showcase-subtitle {
+  font-size: 6.5px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.showcase-switch {
+  display: flex;
+  align-items: center;
+  border: 1px solid #51414a;
+  background: var(--sidebar);
+  padding: 4px;
+  border-radius: 7px;
+  gap: 4px;
+}
+.showcase-switch > button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  min-height: 36px;
+  padding: 7px 14px;
+  border-radius: 4px;
+  color: var(--muted);
+  white-space: nowrap;
+  transition:
+    color 0.2s,
+    background 0.2s;
+}
+.showcase-switch > button.active {
+  background: linear-gradient(140deg, #51333c, #292029);
+  color: #f1e9eb;
+  box-shadow: 0 1px 5px #0004;
+}
+.showcase-switch > button:hover {
+  color: var(--text);
+}
+.car-hero {
+  border-color: #60515c75;
+  border-radius: 10px;
+  height: 390px;
+}
+.hero-photo img {
+  filter: brightness(0.86) saturate(0.7);
+}
+.hero-content {
+  padding: 29px 36px;
+}
+.hero-content h2 {
+  font-weight: 350;
+  font-size: 68px;
+  letter-spacing: -3px;
+}
+.hero-content h2 span {
+  font-weight: 350;
+  font-size: 16px;
+  letter-spacing: 7px;
+}
+.hero-year {
+  color: #bdb4bc;
+  letter-spacing: 4px;
+}
+.hero-details {
+  border-bottom: 1px solid #bd8e984f;
+  max-width: 140px;
+  padding-bottom: 8px;
+}
+.hero-caption {
+  color: #bba9b0;
+}
+.hero-gallery button {
+  border-color: #aa8a964d;
+  background: #1c1d254f;
+}
+.hero-top-right {
+  border-color: #ac8c942c;
+}
+.home-vital-stats {
+  grid-template-columns: 1fr 1.15fr 1fr;
+  border-color: #4a3c454f;
+  margin: 19px 0 16px;
+  background: linear-gradient(130deg, var(--surface), var(--bg));
+}
+.home-vital-stats .stat-card {
+  padding: 22px 25px;
+}
+.home-vital-stats .stat-value {
+  font-weight: 350;
+  font-size: 34px;
+  letter-spacing: -1.3px;
+}
+.home-vital-stats .stat-label {
+  font-size: 8px;
+  color: #b0a6ae;
+}
+.home-vital-stats .stat-card p {
+  font-size: 10px;
+  line-height: 1.6;
+}
+.home-vital-stats .status-value {
+  font-size: 19px;
+  letter-spacing: -0.6px;
+  height: 44px;
+}
+.home-vital-stats .stat-card:nth-child(3) {
+  border-top: 0;
+  border-left: 1px solid var(--border);
+}
+.easy-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 0 27px;
+}
+.easy-actions > button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 18px 17px;
+  font-size: 12px;
+  min-height: 62px;
+  background: linear-gradient(115deg, var(--surface), var(--bg));
+  border: 1px solid #5c45503d;
+  border-radius: 7px;
+  gap: 13px;
+  white-space: nowrap;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+.easy-actions > button > svg:first-child {
+  color: #c19ba7;
+  width: 21px;
+  height: 21px;
+}
+.easy-actions > button > svg:last-child {
+  display: block;
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  color: #aa909b;
+}
+.easy-actions > button:hover {
+  background: var(--elevated);
+  border-color: #aa697c;
+  transform: translateY(-2px);
+}
+.home-page .panel {
+  background: linear-gradient(
+    140deg,
+    var(--surface),
+    color-mix(in srgb, var(--surface) 90%, #34202a)
+  );
+  border-color: #4e424b55;
+}
+.section-title h2 {
+  font-weight: 450;
+}
+.home-page .section-title .eyebrow {
+  color: #a897a0;
+  font-size: 7px;
+  letter-spacing: 2px;
+}
+.home-page .care-row h3 {
+  font-size: 13px;
+}
+.home-page .care-row p {
+  font-size: 10px;
+}
+.home-page .care-row-end .badge {
+  font-size: 8px;
+}
+.home-page .panel-foot {
+  font-size: 9px;
+  padding-top: 18px;
+}
+.home-page .tires-panel {
+  display: flex;
+  flex-direction: column;
+}
+.home-page .tires-panel .tire-visual {
+  flex: 1;
+  min-height: 235px;
+  height: 235px;
+}
+.home-page .tires-panel .car-diagram {
+  height: 235px;
+}
+.home-page .tire-reference {
+  margin-top: auto;
+  padding-top: 15px;
+}
+.home-more {
+  border-top: 1px solid var(--border);
+  margin-top: 25px;
+}
+.home-more > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 1px;
+  list-style: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--muted);
+}
+summary::-webkit-details-marker {
+  display: none;
+}
+.home-more > summary > svg {
+  transition: transform 0.2s;
+}
+.home-more[open] > summary > svg {
+  transform: rotate(180deg);
+}
+.home-more .home-bottom {
+  margin-top: 0;
+}
+.home-page .page-footer {
+  margin-top: 10px;
+}
+.form-more {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  padding: 0 15px;
+  margin-top: 22px;
+}
+.form-more > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--silver);
+  padding: 16px 0;
+  cursor: pointer;
+  min-height: 48px;
+}
+.form-more > summary:after {
+  content: "+";
+  font-size: 18px;
+  font-weight: 300;
+  color: #bf8f9e;
+  line-height: 1;
+}
+.form-more[open] > summary:after {
+  content: "−";
+}
+.form-more[open] > summary {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.form-more > label.button {
+  margin: 5px 0 17px;
+}
+.form-intro {
+  font-size: 12px;
+  color: var(--muted);
+  margin: -8px 0 18px;
+  line-height: 1.8;
+}
+.date-side-note {
+  justify-content: center;
+  padding-left: 10px;
+}
+.date-side-note > span {
+  font-size: 12px;
+  color: #b296a0;
+}
+.date-side-note > small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.full-tank-toggle {
+  padding: 17px 15px;
+  border: 1px solid #6f44525c;
+  border-radius: 7px;
+  background: #68404f10;
+  margin: 20px 0 6px;
+  align-items: center;
+  font-size: 12px;
+}
+.full-tank-toggle small {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  margin-top: 4px;
+}
+.full-tank-toggle input {
+  width: 18px;
+  height: 18px;
+}
+.form-help {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 18px;
+  line-height: 1.8;
+}
+.tire-quick-fields {
+  gap: 10px 18px;
+  padding: 13px 0;
+}
+.tire-quick-fields .field > span {
+  color: #c9b4bd;
+}
+.tire-quick-fields input {
+  font-size: 18px;
+  min-height: 55px;
+  letter-spacing: -0.2px;
+}
+.tire-quick-banner {
+  border: 1px solid #69415058;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  background: linear-gradient(110deg, #65334320, transparent);
+  padding: 23px 26px;
+  margin-bottom: 23px;
+}
+.tire-quick-banner .eyebrow {
+  font-size: 7px;
+  color: #b897a3;
+}
+.tire-quick-banner h3 {
+  font-size: 21px;
+  letter-spacing: -0.6px;
+  font-weight: 400;
+  margin: 7px 0;
+}
+.tire-quick-banner p {
+  font-size: 11px;
+  color: var(--muted);
+}
+.care-catalog-toggle {
+  display: flex;
+  margin: 22px auto;
+  min-width: 240px;
+}
+.task-explanation > summary {
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 12px 0 15px;
+  list-style: none;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.task-explanation > summary:after {
+  content: "+";
+  color: #bc8c9c;
+  font-size: 16px;
+}
+.task-explanation[open] > summary:after {
+  content: "−";
+}
+.task-explanation .task-detail {
+  border-top: 0;
+  padding-top: 3px;
+}
+.maintenance-item .care-row {
+  padding: 21px 0;
+}
+.maintenance-item .care-row h3 {
+  font-size: 14px;
+}
+.maintenance-item .care-row .icon-box {
+  width: 43px;
+  height: 45px;
+  border-color: #69505a35;
+}
+.maintenance-item .care-row-main {
+  margin-left: 5px;
+}
+.maintenance-item .care-row-end .text-button {
+  min-height: 32px;
+  padding: 3px 12px;
+  border: 1px solid #70515c4d;
+  border-radius: 5px;
+  background: #68404f0c;
+  font-size: 11px;
+}
+.maintenance-item .care-row-end {
+  gap: 9px;
+}
+.care-banner {
+  background: linear-gradient(110deg, #3f26312c, var(--surface));
+  border-color: #51404a75;
+}
+.car-studio {
+  border: 1px solid #64505e75;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0e1116;
+  color: #eee9eb;
+}
+.studio-stage {
+  height: 510px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: radial-gradient(
+    ellipse at 50% 60%,
+    #34303b33 0%,
+    #151920 45%,
+    #0e1116 80%
+  );
+}
+.studio-stage:fullscreen {
+  height: 100dvh;
+  background: #0e1116;
+}
+.studio-heading {
+  position: absolute;
+  top: 28px;
+  left: 30px;
+  z-index: 3;
+  pointer-events: none;
+}
+.studio-heading .eyebrow {
+  font-size: 7px;
+  color: #ae8e9a;
+}
+.studio-heading h2 {
+  font-size: 27px;
+  font-weight: 300;
+  letter-spacing: -0.8px;
+  margin: 6px 0 13px;
+}
+.studio-live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 7px;
+  letter-spacing: 1.4px;
+  color: #9c939c;
+}
+.studio-live i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #c7a2af;
+  box-shadow: 0 0 9px #da8fa761;
+}
+.studio-stage iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1s;
+  background: transparent;
+}
+.studio-stage iframe.ready {
+  opacity: 1;
+}
+.studio-orbit {
+  position: absolute;
+  width: 80%;
+  height: 20%;
+  border: 1px solid #92808b15;
+  border-radius: 50%;
+  left: 10%;
+  top: 70%;
+  z-index: 0;
+  box-shadow: 0 0 80px #b0788c08;
+}
+.studio-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 100px 30px 40px;
+  z-index: 2;
+  pointer-events: none;
+}
+.studio-loading > svg {
+  color: #bd93a2;
+  margin-bottom: 24px;
+  animation: studioPulse 2s ease-in-out infinite;
+}
+.studio-loading h3 {
+  font-size: 20px;
+  font-weight: 350;
+  letter-spacing: -0.4px;
+}
+.studio-loading p {
+  font-size: 11px;
+  color: #9c939c;
+  margin: 12px 0 20px;
+}
+.studio-loading small {
+  font-size: 8px;
+  color: #7c7580;
+  letter-spacing: 0.3px;
+  margin-top: 18px;
+}
+.studio-progress {
+  width: 155px;
+  height: 2px;
+  background: #4c394463;
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.studio-progress:after {
+  content: "";
+  position: absolute;
+  left: -40%;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: #c697a8;
+  animation: studioLoad 1.7s ease-in-out infinite;
+}
+.studio-hint {
+  position: absolute;
+  z-index: 3;
+  left: 28px;
+  bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b8a9b2;
+  font-size: 9px;
+  pointer-events: none;
+  background: #11141bd9;
+  border: 1px solid #79616d33;
+  padding: 9px 12px;
+  border-radius: 5px;
+  backdrop-filter: blur(8px);
+}
+.studio-controls {
+  position: absolute;
+  right: 23px;
+  bottom: 47px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  background: #11141bea;
+  border: 1px solid #79616d55;
+  border-radius: 6px;
+  padding: 4px;
+  gap: 3px;
+  box-shadow: 0 3px 30px #0005;
+}
+.studio-controls button {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 35px;
+  font-size: 9px;
+  border-radius: 3px;
+  color: #d5b8c4;
+  padding: 0 8px;
+}
+.studio-controls button:hover {
+  background: #5a354552;
+}
+.studio-controls span {
+  height: 18px;
+  width: 1px;
+  background: #79616d55;
+  margin: 0 4px;
+}
+.studio-source {
+  padding: 14px 22px;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #6b536237;
+  background: #11151a;
+  font-size: 9px;
+  color: #a2939d;
+}
+.studio-source > span {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.studio-source a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #cbb0bd;
+}
+.studio-source small {
+  font-size: 8px;
+  text-align: right;
+  color: #8f858f;
+}
+.studio-fallback {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  padding: 80px 30px 30px;
+  overflow: hidden;
+}
+.studio-fallback > img {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  object-position: center 52%;
+  width: 100%;
+  height: 100%;
+  filter: brightness(0.23) blur(3px);
+  z-index: -1;
+}
+.studio-fallback:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #10141a66;
+}
+.studio-fallback > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 430px;
+}
+.studio-fallback svg {
+  color: #d4afbf;
+}
+.studio-fallback h3 {
+  font-size: 23px;
+  font-weight: 350;
+  margin: 20px 0 12px;
+  letter-spacing: -0.6px;
+}
+.studio-fallback p {
+  font-size: 12px;
+  color: #c2b7bf;
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+.studio-fallback .inline-actions {
+  justify-content: center;
+}
+.studio-fallback .button {
+  min-height: 44px;
+}
+.studio-fallback .text-button {
+  margin-top: 16px;
+  font-size: 10px;
+}
+.model-catalog {
+  border-top: 1px solid #6b536237;
+  padding: 0 23px;
+  background: #101419;
+}
+.model-catalog > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  list-style: none;
+  font-size: 10px;
+  color: #baa3ae;
+  cursor: pointer;
+  padding: 17px 0;
+}
+.model-catalog > summary > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.model-catalog > summary > svg {
+  transition: transform 0.2s;
+}
+.model-catalog[open] > summary > svg {
+  transform: rotate(180deg);
+}
+.model-catalog > p {
+  font-size: 11px;
+  color: #9f949e;
+  line-height: 1.8;
+  max-width: 850px;
+  margin: 5px 0 20px;
+}
+.model-catalog > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+.model-catalog article {
+  border: 1px solid #4f3e494f;
+  padding: 18px;
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  background: #17191f;
+}
+.model-catalog .eyebrow {
+  font-size: 6px;
+  color: #aa8292;
+  letter-spacing: 1.4px;
+}
+.model-catalog h3 {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 9px 0 6px;
+  color: #e5d8df;
+}
+.model-author {
+  font-size: 8px;
+  color: #b69ca8;
+}
+.model-catalog article p {
+  font-size: 10px;
+  color: #a396a1;
+  margin: 13px 0 17px;
+  line-height: 1.8;
+}
+.model-catalog .text-button {
+  font-size: 10px;
+  margin-top: auto;
+  color: #d3afc0;
+}
+.model-catalog > small {
+  font-size: 9px;
+  color: #8b7c88;
+  display: block;
+  margin: 19px 0 22px;
+  line-height: 1.9;
+}
+.page-footer > span {
+  color: #92808b;
+}
+.home-page .badge.amber {
+  color: #d2b48b;
+  background: #b1936c10;
+  border-color: #a88b6b22;
+}
+.home-page .hero-content .hero-color {
+  color: #c5bac1;
+}
+.home-page .hero-engine {
+  color: #c1b7c0;
+}
+.form-more input,
+.form-more select,
+.form-more textarea {
+  background: var(--surface);
+}
+.bottom-nav > button.active {
+  color: #e1a7b5;
+}
+.sidebar .sidebar-label {
+  color: #96838f;
+}
+.brand small {
+  letter-spacing: 1.7px;
+}
+@keyframes studioPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateY(2px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+@keyframes studioLoad {
+  to {
+    left: 100%;
+  }
+}
+@media (min-width: 1550px) {
+  .car-hero {
+    height: 450px;
+  }
+  .hero-content {
+    padding: 34px 40px;
+  }
+  .hero-content h2 {
+    font-size: 78px;
+  }
+  .hero-year {
+    margin-top: 32px;
+  }
+  .hero-engine {
+    font-size: 12px;
+  }
+  .hero-color {
+    font-size: 11px;
+  }
+  .hero-details {
+    font-size: 12px;
+  }
+  .easy-actions > button {
+    min-height: 70px;
+    font-size: 13px;
+  }
+  .studio-stage {
+    height: 580px;
+  }
+}
+@media (max-width: 1200px) and (min-width: 761px) {
+  .home-vital-stats .stat-card {
+    padding: 21px 16px;
+  }
+  .home-vital-stats .stat-value {
+    font-size: 29px;
+  }
+  .home-vital-stats .status-value {
+    font-size: 15px;
+  }
+  .home-vital-stats .stat-card p {
+    font-size: 9px;
+  }
+  .easy-actions {
+    gap: 9px;
+  }
+  .easy-actions > button {
+    font-size: 10px;
+    padding: 15px 11px;
+    gap: 9px;
+  }
+  .easy-actions > button > svg:first-child {
+    width: 18px;
+  }
+  .easy-actions > button > svg:last-child {
+    width: 12px;
+  }
+  .showcase-subtitle {
+    display: none;
+  }
+  .studio-hint {
+    left: 20px;
+    font-size: 8px;
+  }
+  .studio-controls {
+    right: 17px;
+  }
+  .studio-source {
+    padding: 14px 17px;
+    font-size: 8px;
+    gap: 15px;
+  }
+  .studio-source small {
+    font-size: 7px;
+  }
+  .hero-content h2 {
+    font-size: 60px;
+  }
+  .hero-content h2 span {
+    font-size: 14px;
+    letter-spacing: 5px;
+  }
+  .hero-content {
+    padding: 27px;
+  }
+  .hero-engine {
+    font-size: 10px;
+  }
+  .hero-color {
+    font-size: 9px;
+  }
+  .model-catalog > div {
+    grid-template-columns: 1fr;
+  }
+  .model-catalog article {
+    padding: 20px;
+  }
+  .model-catalog article p {
+    font-size: 11px;
+  }
+  .model-catalog h3 {
+    font-size: 15px;
+  }
+  .model-catalog .eyebrow {
+    font-size: 7px;
+  }
+  .model-author {
+    font-size: 10px;
+  }
+  .model-catalog .text-button {
+    font-size: 11px;
+  }
+}
+@media (max-width: 1000px) and (min-width: 761px) {
+  .home-vital-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .home-vital-stats > .stat-card:last-child {
+    display: none;
+  }
+  .showcase-toolbar > span {
+    font-size: 9px;
+    gap: 8px;
+    letter-spacing: 1.3px;
+  }
+  .showcase-small-line {
+    width: 15px;
+  }
+  .showcase-switch > button {
+    font-size: 9px;
+    padding: 7px 10px;
+  }
+  .car-hero {
+    height: 380px;
+  }
+  .hero-content h2 {
+    font-size: 58px;
+  }
+  .mazda-signature {
+    display: none;
+  }
+  .easy-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .easy-actions > button {
+    font-size: 12px;
+    padding: 17px 19px;
+  }
+  .easy-actions > button > svg:first-child {
+    width: 21px;
+  }
+  .home-page .tires-panel .tire-visual {
+    min-height: 260px;
+  }
+  .home-page .tires-panel .car-diagram {
+    height: 260px;
+  }
+  .studio-stage {
+    height: 480px;
+  }
+  .studio-heading h2 {
+    font-size: 24px;
+  }
+  .studio-hint {
+    bottom: 98px;
+    left: 20px;
+    font-size: 9px;
+  }
+  .studio-controls {
+    left: 20px;
+    right: auto;
+    bottom: 47px;
+  }
+  .studio-controls button {
+    min-height: 36px;
+    min-width: 40px;
+  }
+  .studio-source {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .studio-source small {
+    text-align: left;
+    font-size: 8px;
+  }
+  .tire-quick-banner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .tire-quick-banner h3 {
+    font-size: 21px;
+  }
+}
+@media (max-width: 760px) {
+  .page-heading {
+    margin-bottom: 22px;
+  }
+  .page-heading h1 {
+    font-size: 30px;
+    font-weight: 350;
+    letter-spacing: -1.3px;
+  }
+  .page-heading p {
+    font-size: 12px;
+    max-width: 330px;
+  }
+  .page-heading .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.7px;
+  }
+  .mazda-signature {
+    display: none;
+  }
+  .showcase-toolbar {
+    margin-bottom: 11px;
+    gap: 10px;
+  }
+  .showcase-toolbar > span {
+    font-size: 9px;
+    letter-spacing: 1px;
+    gap: 7px;
+  }
+  .showcase-subtitle {
+    display: none;
+  }
+  .showcase-small-line {
+    width: 15px;
+  }
+  .showcase-switch {
+    gap: 3px;
+    padding: 3px;
+  }
+  .showcase-switch > button {
+    font-size: 9px;
+    padding: 7px 10px;
+    min-height: 36px;
+    gap: 6px;
+  }
+  .showcase-switch svg {
+    width: 14px;
+    height: 14px;
+  }
+  .car-hero {
+    height: 410px;
+  }
+  .hero-content {
+    padding: 28px;
+  }
+  .hero-content h2 {
+    font-size: 62px;
+  }
+  .hero-content h2 span {
+    font-size: 14px;
+    letter-spacing: 6px;
+  }
+  .hero-year {
+    font-size: 9px;
+  }
+  .hero-engine {
+    font-size: 10px;
+  }
+  .hero-color {
+    font-size: 9px;
+  }
+  .hero-details {
+    font-size: 11px;
+    max-width: 140px;
+  }
+  .home-vital-stats {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 16px;
+  }
+  .home-vital-stats .stat-card {
+    padding: 21px 18px;
+  }
+  .home-vital-stats .stat-label {
+    font-size: 8px;
+  }
+  .home-vital-stats .stat-value {
+    font-size: 31px;
+  }
+  .home-vital-stats .status-value {
+    font-size: 16px;
+    height: 40px;
+  }
+  .home-vital-stats .stat-card p {
+    font-size: 9px;
+  }
+  .home-vital-stats > .stat-card:last-child {
+    display: none;
+  }
+  .easy-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding-bottom: 23px;
+  }
+  .easy-actions > button {
+    font-size: 12px;
+    min-height: 64px;
+    padding: 17px;
+    gap: 12px;
+  }
+  .easy-actions > button > svg:first-child {
+    width: 20px;
+    height: 20px;
+  }
+  .easy-actions > button > svg:last-child {
+    width: 14px;
+    height: 14px;
+  }
+  .home-page .care-row h3 {
+    font-size: 12px;
+  }
+  .home-page .care-row p {
+    font-size: 10px;
+  }
+  .home-page .care-row-end .badge {
+    font-size: 8px;
+  }
+  .home-page .panel-foot {
+    font-size: 8px;
+  }
+  .home-page .section-title .eyebrow {
+    font-size: 7px;
+    letter-spacing: 1.7px;
+  }
+  .home-page .section-title h2 {
+    font-size: 19px;
+  }
+  .home-page .tires-panel .tire-visual {
+    min-height: 270px;
+    height: 270px;
+  }
+  .home-page .tires-panel .car-diagram {
+    height: 270px;
+  }
+  .home-page .tire-reference {
+    margin-top: 14px;
+  }
+  .home-more > summary {
+    font-size: 11px;
+    padding: 19px 0;
+    gap: 10px;
+  }
+  .home-more .home-bottom {
+    gap: 17px;
+  }
+  .studio-stage {
+    height: 510px;
+  }
+  .studio-heading {
+    left: 23px;
+    top: 25px;
+  }
+  .studio-heading .eyebrow {
+    font-size: 6px;
+    letter-spacing: 1.6px;
+  }
+  .studio-heading h2 {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
+  .studio-live {
+    font-size: 6px;
+    letter-spacing: 1.2px;
+  }
+  .studio-loading {
+    padding: 110px 23px 35px;
+  }
+  .studio-loading h3 {
+    font-size: 19px;
+  }
+  .studio-loading p {
+    font-size: 10px;
+  }
+  .studio-loading small {
+    font-size: 8px;
+  }
+  .studio-hint {
+    left: 17px;
+    right: 17px;
+    bottom: 99px;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 10px;
+    font-size: 9px;
+  }
+  .studio-controls {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 45px;
+    width: max-content;
+    max-width: 95%;
+    gap: 4px;
+  }
+  .studio-controls button {
+    min-height: 38px;
+    min-width: 40px;
+    font-size: 10px;
+    padding: 0 11px;
+  }
+  .studio-source {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 15px 19px;
+    font-size: 9px;
+  }
+  .studio-source small {
+    text-align: left;
+    font-size: 8px;
+    line-height: 1.8;
+  }
+  .studio-fallback {
+    padding: 110px 23px 40px;
+  }
+  .studio-fallback h3 {
+    font-size: 22px;
+  }
+  .studio-fallback p {
+    font-size: 11px;
+  }
+  .studio-fallback .button {
+    font-size: 10px;
+    padding: 12px 14px;
+  }
+  .studio-fallback .text-button {
+    font-size: 10px;
+  }
+  .model-catalog {
+    padding: 0 19px;
+  }
+  .model-catalog > summary {
+    padding: 18px 0;
+    font-size: 10px;
+  }
+  .model-catalog > p {
+    font-size: 11px;
+  }
+  .model-catalog > div {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+  .model-catalog article {
+    padding: 20px;
+  }
+  .model-catalog h3 {
+    font-size: 15px;
+  }
+  .model-catalog .eyebrow {
+    font-size: 7px;
+  }
+  .model-author {
+    font-size: 10px;
+  }
+  .model-catalog article p {
+    font-size: 11px;
+  }
+  .model-catalog .text-button {
+    font-size: 11px;
+  }
+  .model-catalog > small {
+    font-size: 10px;
+  }
+  .task-explanation > summary {
+    font-size: 11px;
+    padding: 15px 0;
+    min-height: 44px;
+  }
+  .maintenance-item .care-row {
+    padding: 19px 0;
+    gap: 10px;
+  }
+  .maintenance-item .care-row .icon-box {
+    width: 36px;
+    height: 41px;
+  }
+  .maintenance-item .care-row h3 {
+    font-size: 12px;
+  }
+  .maintenance-item .care-row-main {
+    margin-left: 0;
+  }
+  .maintenance-item .care-row-end .text-button {
+    font-size: 10px;
+    min-height: 32px;
+    padding: 4px 9px;
+  }
+  .tire-quick-banner {
+    padding: 24px;
+    gap: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tire-quick-banner h3 {
+    font-size: 23px;
+    letter-spacing: -0.7px;
+  }
+  .tire-quick-banner p {
+    font-size: 12px;
+  }
+  .tire-quick-banner .eyebrow {
+    font-size: 7px;
+  }
+  .tire-quick-banner > .button {
+    font-size: 12px;
+    min-height: 47px;
+  }
+  .form-intro {
+    font-size: 12px;
+  }
+  .form-more > summary {
+    font-size: 11px;
+    min-height: 51px;
+  }
+  .full-tank-toggle {
+    font-size: 12px;
+  }
+  .full-tank-toggle small {
+    font-size: 10px;
+  }
+  .date-side-note > span {
+    font-size: 11px;
+  }
+  .date-side-note > small {
+    font-size: 9px;
+  }
+  .form-help {
+    font-size: 11px;
+  }
+  .tire-quick-fields input {
+    font-size: 18px;
+  }
+  .modal-header h2 {
+    font-weight: 400;
+  }
+  .sidebar {
+    background: #0e1116;
+  }
+}
+@media (max-width: 420px) {
+  .page-heading h1 {
+    font-size: 27px;
+  }
+  .page-heading p {
+    font-size: 11px;
+  }
+  .showcase-toolbar > span {
+    font-size: 8px;
+    letter-spacing: 0.7px;
+    gap: 6px;
+  }
+  .showcase-small-line {
+    width: 10px;
+  }
+  .showcase-switch > button {
+    font-size: 8px;
+    padding: 6px 8px;
+    gap: 5px;
+  }
+  .showcase-switch svg {
+    width: 13px;
+    height: 13px;
+  }
+  .car-hero {
+    height: 425px;
+  }
+  .hero-content {
+    padding: 24px 21px;
+  }
+  .hero-content h2 {
+    font-size: 48px;
+  }
+  .hero-content h2 span {
+    font-size: 12px;
+    letter-spacing: 5px;
+  }
+  .hero-year {
+    font-size: 8px;
+    letter-spacing: 2.8px;
+  }
+  .hero-engine {
+    font-size: 8px;
+  }
+  .hero-color {
+    font-size: 8px;
+  }
+  .hero-details {
+    font-size: 10px;
+    bottom: 19px;
+    max-width: 125px;
+  }
+  .hero-gallery {
+    bottom: 24px;
+  }
+  .hero-top-right {
+    top: 22px;
+  }
+  .home-vital-stats .stat-card {
+    padding: 20px 15px;
+  }
+  .home-vital-stats .stat-value {
+    font-size: 29px;
+  }
+  .home-vital-stats .status-value {
+    font-size: 14px;
+    height: 38px;
+    gap: 6px;
+  }
+  .home-vital-stats .stat-card p {
+    font-size: 8px;
+  }
+  .home-vital-stats .stat-label {
+    font-size: 7px;
+    letter-spacing: 0.7px;
+  }
+  .easy-actions > button {
+    font-size: 11px;
+    padding: 17px 14px;
+    gap: 9px;
+  }
+  .easy-actions > button > svg:last-child {
+    width: 12px;
+    height: 12px;
+  }
+  .home-page .care-row h3 {
+    font-size: 11px;
+  }
+  .home-page .care-row p {
+    font-size: 8px;
+  }
+  .home-page .care-row-end .badge {
+    font-size: 7px;
+  }
+  .home-page .section-title h2 {
+    font-size: 17px;
+  }
+  .home-page .section-title .eyebrow {
+    font-size: 6px;
+    letter-spacing: 1.6px;
+  }
+  .home-page .panel-foot {
+    font-size: 7.5px;
+  }
+  .home-more > summary {
+    font-size: 10px;
+  }
+  .studio-stage {
+    height: 490px;
+  }
+  .studio-heading h2 {
+    font-size: 24px;
+  }
+  .studio-source {
+    font-size: 8px;
+  }
+  .studio-heading {
+    left: 20px;
+  }
+  .studio-fallback h3 {
+    font-size: 20px;
+  }
+  .maintenance-item .care-row h3 {
+    font-size: 11px;
+  }
+  .maintenance-item .care-row .icon-box {
+    width: 32px;
+    height: 36px;
+  }
+  .maintenance-item .care-row-end .badge {
+    font-size: 6.5px;
+  }
+  .task-explanation > summary {
+    font-size: 10px;
+  }
+  .date-side-note {
+    padding-left: 0;
+  }
+  .date-side-note > span {
+    font-size: 10px;
+  }
+  .form-more > summary {
+    font-size: 10px;
+  }
+  .tire-quick-fields .field > span {
+    font-size: 10px;
+  }
+}
+:root[data-theme="light"] .sidebar {
+  background: linear-gradient(180deg, #fafaf7, #eeefeb);
+  border-right-color: #dcd9d8;
+}
+:root[data-theme="light"] .nav-item.active {
+  background: #f1e4e7;
+  border-color: #d8b4bf;
+  color: #7f2e43;
+}
+:root[data-theme="light"] .sidebar-label {
+  color: #8d7884;
+}
+:root[data-theme="light"] .mazda-signature {
+  color: #51414b;
+}
+:root[data-theme="light"] .showcase-switch {
+  background: #eeebe9;
+  border-color: #d0bcc6;
+}
+:root[data-theme="light"] .showcase-switch > button.active {
+  background: #fff;
+  color: #87354d;
+  box-shadow: 0 1px 4px #502b3d20;
+}
+:root[data-theme="light"] .home-vital-stats .stat-label {
+  color: #766370;
+}
+:root[data-theme="light"] .easy-actions > button > svg:first-child {
+  color: #9e5b70;
+}
+:root[data-theme="light"] .home-page .badge.amber {
+  color: #98641b;
+}
+:root[data-theme="light"] .page-footer > span {
+  color: #766370;
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-loading > svg,
+  .studio-progress:after {
+    animation: none;
+  }
+  .studio-progress:after {
+    left: 25%;
+  }
+  .studio-stage iframe,
+  .easy-actions > button {
+    transition: none;
+  }
+}

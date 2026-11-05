@@ -28,13 +28,13 @@ import { Onboarding } from "./features/Onboarding";
 import { Editor } from "./components/Editors";
 import type { ModalState } from "./components/ui";
 const nav = [
-  { id: "home", label: "Overview", mobile: "Home", icon: House },
-  { id: "care", label: "Vehicle care", mobile: "Care", icon: Wrench },
-  { id: "fuel", label: "Fuel & efficiency", mobile: "Fuel", icon: Fuel },
-  { id: "garage", label: "My garage", mobile: "Garage", icon: Warehouse },
+  { id: "home", label: "Home", mobile: "Home", icon: House },
+  { id: "care", label: "Care", mobile: "Care", icon: Wrench },
+  { id: "fuel", label: "Fuel", mobile: "Fuel", icon: Fuel },
+  { id: "garage", label: "Garage", mobile: "Garage", icon: Warehouse },
   {
     id: "assistant",
-    label: "Garage assistant",
+    label: "Assistant",
     mobile: "Assistant",
     icon: Sparkles,
   },
@@ -57,7 +57,8 @@ export default function App() {
     [modal, setModal] = useState<ModalState | null>(null),
     [offline, setOffline] = useState(!navigator.onLine),
     [install, setInstall] = useState<InstallEvent | null>(null),
-    [sidebar, setSidebar] = useState(false);
+    [sidebar, setSidebar] = useState(false),
+    [appUpdate, setAppUpdate] = useState<(() => Promise<void>) | null>(null);
   useEffect(() => {
     const onPop = () => setRoute(readLocation());
     const onOnline = () => setOffline(!navigator.onLine);
@@ -65,6 +66,11 @@ export default function App() {
       e.preventDefault();
       setInstall(e as InstallEvent);
     };
+    const onUpdate = (event: Event) => {
+      const apply = (event as CustomEvent<() => Promise<void>>).detail;
+      if (typeof apply === "function") setAppUpdate(() => apply);
+    };
+    window.addEventListener("garage-update-available", onUpdate);
     window.addEventListener("popstate", onPop);
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOnline);
@@ -74,6 +80,7 @@ export default function App() {
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOnline);
       window.removeEventListener("beforeinstallprompt", onInstall);
+      window.removeEventListener("garage-update-available", onUpdate);
     };
   }, []);
   const navigate = (tab: Tab, section?: string) => {
@@ -106,7 +113,7 @@ export default function App() {
             <Warehouse size={25} strokeWidth={1.3} />
           </span>
           <span>
-            MY GARAGE<small>THE ART OF OWNERSHIP</small>
+            MY GARAGE<small>YOUR MAZDA COMPANION</small>
           </span>
         </button>
         <div className="sidebar-label">YOUR COMPANION</div>
@@ -222,6 +229,21 @@ export default function App() {
             <WifiOff size={14} />
             You’re offline. Your garage records, photos and care tools are still
             here.
+          </div>
+        )}
+        {appUpdate && (
+          <div className="app-update-banner" role="status">
+            <span>A fresh version of your garage is ready.</span>
+            <button
+              onClick={() =>
+                void appUpdate().catch(() =>
+                  toast("Close and reopen the app to finish updating."),
+                )
+              }
+            >
+              Update now
+              <ArrowUpRight size={14} />
+            </button>
           </div>
         )}
         <main

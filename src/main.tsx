@@ -4,6 +4,8 @@ import { registerSW } from "virtual:pwa-register";
 import App from "./App";
 import { GarageProvider } from "./lib/store";
 import "./styles.css";
+import "./premium.css";
+import "./interaction.css";
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { error: boolean }
@@ -29,9 +31,13 @@ class ErrorBoundary extends Component<
     );
   }
 }
-registerSW({
+const updateSW = registerSW({
   onNeedRefresh() {
-    window.dispatchEvent(new Event("garage-update-available"));
+    window.dispatchEvent(
+      new CustomEvent("garage-update-available", {
+        detail: () => updateSW(true),
+      }),
+    );
   },
   onOfflineReady() {
     console.info("My Garage is ready offline.");

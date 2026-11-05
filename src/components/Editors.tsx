@@ -101,12 +101,15 @@ export function Editor({
       : displayMeters(data);
   const initialOdo =
     mileage === null ? "" : Number(fromMeters(mileage, unit).toFixed(1));
+  const [odometerValue, setOdometerValue] = useState(String(initialOdo));
+  const [odometerMeters, setOdometerMeters] = useState<number | null>(mileage);
   const title = {
     mileage: "Update odometer",
     service: old ? "Edit service" : "Record a service",
     fuel: old ? "Edit fuel purchase" : "Log a fill-up",
     expense: old ? "Edit expense" : "Add an expense",
     tire: tire.position + " tire",
+    "tire-check": "Four tires. One quick check.",
     profile: "Your Mazda, in detail",
     reminder: "Create a reminder",
     settings: "Garage settings",
@@ -157,6 +160,35 @@ export function Editor({
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     void run(async () => {
+      if (state.type === "tire-check") {
+        const checkDate = text(f, "date");
+        const pressures = data.tires.map((t, i) =>
+          number(f.get("pressure-" + i), t.position + " pressure")!,
+        );
+        if (pressures.some((p) => p <= 0))
+          throw Error("Enter the actual cold pressure measured at each tire.");
+        await update((d) => {
+          d.tires.forEach((t, i) => {
+            t.psi = pressureFrom(pressures[i], pressureUnit);
+            t.checked = checkDate;
+            d.history.push({
+              id: id(),
+              vehicleId: d.vehicle.id,
+              title: `${t.position} tire pressure inspection`,
+              category: "Tires",
+              date: checkDate,
+              meters: null,
+              taskId: "",
+              cost: null,
+              currency: "USD",
+              provider: "Owner inspection",
+              notes: `Cold pressure: ${t.psi.toFixed(1)} PSI. Manual four-tire check; wheel condition not assessed by this entry.`,
+              attachments: [],
+            });
+          });
+          d.reminders = d.reminders.filter((r) => r.taskId !== "pressure");
+        });
+      }
       if (state.type === "mileage") {
         const value = number(f.get("odometer"), "odometer")!;
         const reading: Reading = {
@@ -402,7 +434,14 @@ export function Editor({
     <select
       aria-label="Distance unit"
       value={unit}
-      onChange={(e) => setUnit(e.target.value as Unit)}
+      onChange={(e) => {
+        const nextUnit = e.target.value as Unit;
+        setUnit(nextUnit);
+        if (odometerMeters !== null)
+          setOdometerValue(
+            String(Number(fromMeters(odometerMeters, nextUnit).toFixed(3))),
+          );
+      }}
     >
       <option value="mi">Miles (mi)</option>
       <option value="km">Kilometers (km)</option>
@@ -425,13 +464,19 @@ export function Editor({
       hint="Use a verified dashboard reading. Leave an unknown historical reading blank."
     >
       <input
-        key={`${unit}-${state.id}`}
         name="odometer"
         type="number"
         min="0"
-        step="0.1"
+        step="any"
         required={state.type === "mileage" || state.type === "fuel"}
-        defaultValue={initialOdo}
+        value={odometerValue}
+        onChange={(e) => {
+          const value = e.target.value;
+          setOdometerValue(value);
+          setOdometerMeters(
+            value === "" ? null : toMeters(Number(value), unit),
+          );
+        }}
         placeholder="Unknown"
       />
     </Field>
@@ -724,7 +769,10 @@ export function Editor({
               </Note>
               <Field label="Display & input unit">{unitSelect}</Field>
               {odoField}
-              {notes}
+              <details className="form-more">
+                <summary>Add a note (optional)</summary>
+                {notes}
+              </details>
             </>
           )}
           {(state.type === "service" || state.type === "expense") && (
@@ -745,38 +793,41 @@ export function Editor({
                   </select>
                 </Field>
               )}
-              <Field label="Record title">
+              {oldHistory || !taskId ? (
+                <Field label="Record title">
+                  <input
+                    key={taskId}
+                    name="title"
+                    required
+                    defaultValue={
+                      oldHistory?.title ??
+                      tasks.find((t) => t.id === taskId)?.name ??
+                      ""
+                    }
+                    placeholder={
+                      state.type === "expense"
+                        ? "e.g. Annual insurance"
+                        : "e.g. Engine oil & filter replacement"
+                    }
+                  />
+                </Field>
+              ) : (
                 <input
-                  key={taskId}
+                  type="hidden"
                   name="title"
-                  required
-                  defaultValue={
-                    oldHistory?.title ??
-                    tasks.find((t) => t.id === taskId)?.name ??
-                    ""
-                  }
-                  placeholder={
-                    state.type === "expense"
-                      ? "e.g. Annual insurance"
-                      : "e.g. Engine oil & filter replacement"
-                  }
+                  value={tasks.find((t) => t.id === taskId)?.name ?? ""}
                 />
-              </Field>
+              )}
               <div className="form-grid">
                 {dateField}
-                <Field label="Category">
-                  <select
-                    name="category"
-                    defaultValue={
-                      oldHistory?.category ??
-                      (state.type === "expense" ? "Other" : "Maintenance")
-                    }
-                  >
-                    {categories.map((c) => (
-                      <option key={c}>{c}</option>
-                    ))}
-                  </select>
-                </Field>
+                <div className="field date-side-note">
+                  <span>
+                    {state.type === "service"
+                      ? "Care, recorded."
+                      : "Ownership, understood."}
+                  </span>
+                  <small>Only enter what you know.</small>
+                </div>
               </div>
               <div className="form-grid">
                 {odoField}
@@ -803,46 +854,60 @@ export function Editor({
                   </select>
                 </Field>
               </div>
-              <Field label="Service provider (optional)">
-                <input
-                  name="provider"
-                  defaultValue={oldHistory?.provider ?? ""}
-                  placeholder="Garage or technician"
-                />
-              </Field>
-              <Field label="Expense recurrence">
-                <select
-                  name="recurring"
-                  defaultValue={oldHistory?.recurring ?? "none"}
-                >
-                  <option value="none">One-time expense</option>
-                  <option value="monthly">Recurring · monthly</option>
-                  <option value="annual">Recurring · annual</option>
-                </select>
-              </Field>
-              {notes}
-              <label className="button secondary file-button">
-                <Upload size={15} />
-                {uploadBusy
-                  ? "Attaching…"
-                  : `Attach invoice / photo${docIds.length ? ` (${docIds.length})` : ""}`}
-                <input
-                  type="file"
-                  accept="application/pdf,image/*"
-                  multiple
-                  disabled={uploadBusy}
-                  onChange={(e) => void attach(e.target.files)}
-                />
-              </label>
+              <details className="form-more" open={!!oldHistory}>
+                <summary>Provider, notes & invoice (optional)</summary>
+                <Field label="Category">
+                  <select
+                    name="category"
+                    defaultValue={
+                      oldHistory?.category ??
+                      (state.type === "expense" ? "Other" : "Maintenance")
+                    }
+                  >
+                    {categories.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Service provider (optional)">
+                  <input
+                    name="provider"
+                    defaultValue={oldHistory?.provider ?? ""}
+                    placeholder="Garage or technician"
+                  />
+                </Field>
+                <Field label="Expense recurrence">
+                  <select
+                    name="recurring"
+                    defaultValue={oldHistory?.recurring ?? "none"}
+                  >
+                    <option value="none">One-time expense</option>
+                    <option value="monthly">Recurring · monthly</option>
+                    <option value="annual">Recurring · annual</option>
+                  </select>
+                </Field>
+                {notes}
+                <label className="button secondary file-button">
+                  <Upload size={15} />
+                  {uploadBusy
+                    ? "Attaching…"
+                    : `Attach invoice / photo${docIds.length ? ` (${docIds.length})` : ""}`}
+                  <input
+                    type="file"
+                    accept="application/pdf,image/*"
+                    multiple
+                    disabled={uploadBusy}
+                    onChange={(e) => void attach(e.target.files)}
+                  />
+                </label>
+              </details>
             </>
           )}
           {state.type === "fuel" && (
             <>
-              <Note>
-                Only full-to-full cycles produce measured consumption. Partial
-                fills between them are included; the first full fill establishes
-                a baseline.
-              </Note>
+              <p className="form-intro">
+                Just the essentials. Your garage calculates the rest.
+              </p>
               <div className="form-grid">
                 {dateField}
                 <Field label="Distance unit">{unitSelect}</Field>
@@ -871,58 +936,69 @@ export function Editor({
                   />
                 </Field>
               </div>
-              <div className="form-grid">
-                <Field label="Price per liter (optional)">
-                  <input
-                    name="pricePerLiter"
-                    type="number"
-                    min="0"
-                    step="0.001"
-                    placeholder="Used if total is blank"
-                  />
-                </Field>
-                <Field label="Currency">
-                  <select
-                    name="currency"
-                    defaultValue={oldFuel?.currency ?? "USD"}
-                  >
-                    <option>USD</option>
-                    <option>LBP</option>
-                  </select>
-                </Field>
-              </div>
-              <label className="check-field">
+              <label className="check-field full-tank-toggle">
                 <input
                   type="checkbox"
                   name="full"
                   defaultChecked={oldFuel?.full ?? true}
                 />
-                <span>Filled to a full tank</span>
+                <span>
+                  Filled to a full tank
+                  <small>
+                    Partial fills are saved without guessing consumption.
+                  </small>
+                </span>
               </label>
-              <div className="form-grid">
-                <Field label="Driving conditions">
-                  <select
-                    name="terrain"
-                    defaultValue={oldFuel?.terrain ?? "Mixed"}
-                  >
-                    {["Mixed", "City", "Highway", "Mountainous"].map((c) => (
-                      <option key={c}>{c}</option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Gas station (optional)">
-                  <input name="station" defaultValue={oldFuel?.station ?? ""} />
-                </Field>
-              </div>
-              <label className="check-field">
-                <input
-                  name="sport"
-                  type="checkbox"
-                  defaultChecked={oldFuel?.sport ?? false}
-                />
-                Sport mode used
-              </label>
-              {notes}
+              <details className="form-more" open={!!oldFuel}>
+                <summary>Price per liter, driving & notes (optional)</summary>
+                <div className="form-grid">
+                  <Field label="Price per liter (optional)">
+                    <input
+                      name="pricePerLiter"
+                      type="number"
+                      min="0"
+                      step="0.001"
+                      placeholder="Used if total is blank"
+                    />
+                  </Field>
+                  <Field label="Currency">
+                    <select
+                      name="currency"
+                      defaultValue={oldFuel?.currency ?? "USD"}
+                    >
+                      <option>USD</option>
+                      <option>LBP</option>
+                    </select>
+                  </Field>
+                </div>
+                <div className="form-grid">
+                  <Field label="Driving conditions">
+                    <select
+                      name="terrain"
+                      defaultValue={oldFuel?.terrain ?? "Mixed"}
+                    >
+                      {["Mixed", "City", "Highway", "Mountainous"].map((c) => (
+                        <option key={c}>{c}</option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Gas station (optional)">
+                    <input
+                      name="station"
+                      defaultValue={oldFuel?.station ?? ""}
+                    />
+                  </Field>
+                </div>
+                <label className="check-field">
+                  <input
+                    name="sport"
+                    type="checkbox"
+                    defaultChecked={oldFuel?.sport ?? false}
+                  />
+                  Sport mode used
+                </label>
+                {notes}
+              </details>
             </>
           )}
           {state.type === "tire" && (
@@ -974,52 +1050,111 @@ export function Editor({
                   }
                 />
               </Field>
-              <div className="form-grid">
-                <Field label="Tread depth (mm)">
-                  <input
-                    name="tread"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    defaultValue={tire.tread ?? ""}
-                    placeholder="Unknown"
-                  />
+              <details
+                className="form-more"
+                open={!!tire.brand || tire.tread !== null}
+              >
+                <summary>Tread, tire details & condition (optional)</summary>
+                <div className="form-grid">
+                  <Field label="Tread depth (mm)">
+                    <input
+                      name="tread"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      defaultValue={tire.tread ?? ""}
+                      placeholder="Unknown"
+                    />
+                  </Field>
+                  <Field label="Manufacture date (from DOT code)">
+                    <input
+                      name="manufactured"
+                      type="date"
+                      max={dateInput(new Date())}
+                      defaultValue={tire.manufactured}
+                    />
+                  </Field>
+                </div>
+                <div className="form-grid">
+                  <Field label="Tire brand">
+                    <input name="brand" defaultValue={tire.brand} />
+                  </Field>
+                  <Field label="Tire model">
+                    <input name="model" defaultValue={tire.model} />
+                  </Field>
+                </div>
+                <Field label="Tire size">
+                  <input name="size" defaultValue={tire.size} />
                 </Field>
-                <Field label="Manufacture date (from DOT code)">
+                <Field label="Wheel / tire condition">
+                  <select name="condition" defaultValue={tire.condition}>
+                    {[
+                      "Needs inspection",
+                      "Inspected — no visible damage",
+                      "Visible damage — inspection needed",
+                      "Unsafe — do not drive",
+                    ].map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Notes">
+                  <textarea name="notes" defaultValue={tire.notes} />
+                </Field>
+              </details>
+            </>
+          )}
+          {state.type === "tire-check" && (
+            <>
+              <p className="form-intro">
+                Measure each tire when cold. Log all four together.
+              </p>
+              <Note>
+                Reference: {data.vehicle.pressure} PSI front & rear ·{" "}
+                {data.vehicle.placardVerified
+                  ? "door placard confirmed"
+                  : "confirm your door placard"}
+                . These are manual measurements, not live tire readings.
+              </Note>
+              <div className="form-grid">
+                <Field label="Check date">
                   <input
-                    name="manufactured"
+                    name="date"
                     type="date"
+                    required
                     max={dateInput(new Date())}
-                    defaultValue={tire.manufactured}
+                    defaultValue={dateInput(new Date())}
                   />
                 </Field>
-              </div>
-              <div className="form-grid">
-                <Field label="Tire brand">
-                  <input name="brand" defaultValue={tire.brand} />
+                <Field label="Pressure unit">
+                  <select
+                    value={pressureUnit}
+                    onChange={(e) => setPressureUnit(e.target.value)}
+                  >
+                    <option>PSI</option>
+                    <option>bar</option>
+                    <option>kPa</option>
+                  </select>
                 </Field>
-                <Field label="Tire model">
-                  <input name="model" defaultValue={tire.model} />
-                </Field>
               </div>
-              <Field label="Tire size">
-                <input name="size" defaultValue={tire.size} />
-              </Field>
-              <Field label="Wheel / tire condition">
-                <select name="condition" defaultValue={tire.condition}>
-                  {[
-                    "Needs inspection",
-                    "Inspected — no visible damage",
-                    "Visible damage — inspection needed",
-                    "Unsafe — do not drive",
-                  ].map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Notes">
-                <textarea name="notes" defaultValue={tire.notes} />
-              </Field>
+              <div className="form-grid tire-quick-fields">
+                {data.tires.map((t, i) => (
+                  <Field key={i} label={`${t.position} (${pressureUnit})`}>
+                    <input
+                      type="number"
+                      name={"pressure-" + i}
+                      step="0.01"
+                      min="0.01"
+                      required
+                      placeholder="Measured pressure"
+                    />
+                  </Field>
+                ))}
+              </div>
+              <p className="form-help">
+                To log wheel damage, tread depth or tire age, select an
+                individual wheel in the tire center.
+              </p>
             </>
           )}
           {state.type === "profile" && (

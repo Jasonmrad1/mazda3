@@ -191,6 +191,7 @@ export type ModalState = {
     | "fuel"
     | "expense"
     | "tire"
+    | "tire-check"
     | "profile"
     | "reminder"
     | "settings"

@@ -42,7 +42,7 @@ test("records oil service and recalculates next due thresholds", async ({
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await page
     .getByRole("navigation", { name: "Main navigation" })
-    .getByRole("button", { name: "Vehicle care" })
+    .getByRole("button", { name: /^Care/ })
     .click();
   await expect(
     page.getByText("42,000 mi", { exact: false }).first(),
@@ -56,7 +56,7 @@ test("records all four manual tire pressures without inventing odometer", async 
   page,
 }) => {
   await begin(page);
-  await page.getByRole("button", { name: "Check tires", exact: true }).click();
+  await page.goto("/?tab=care&section=tires");
   for (const [i, position] of [
     "Front left",
     "Front right",

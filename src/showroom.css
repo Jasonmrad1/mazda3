@@ -426,34 +426,6 @@ input[type="checkbox"] {
 .showroom-header-end .icon-button {
   color: #aaa;
 }
-.showroom-menu-toggle {
-  display: none;
-}
-.showroom-mobile-menu {
-  position: absolute;
-  z-index: 12;
-  top: 85px;
-  left: 20px;
-  right: 20px;
-  background: #141414f5;
-  border: 1px solid #444;
-  border-radius: 7px;
-  padding: 10px 18px;
-  backdrop-filter: blur(15px);
-}
-.showroom-mobile-menu > button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 14px 0;
-  border-bottom: 1px solid #333;
-  width: 100%;
-  color: #ccc;
-}
-.showroom-mobile-menu > button:last-child {
-  border-bottom: 0;
-}
 .showroom-watermark {
   position: absolute;
   left: 38%;
@@ -1045,14 +1017,7 @@ input[type="checkbox"] {
   .showroom-header-end {
     gap: 9px;
   }
-  .showroom-header-end > .icon-button:not(.showroom-menu-toggle) {
-    display: none;
-  }
-  .showroom-menu-toggle {
-    display: inline-flex;
-    min-width: 31px;
-    min-height: 40px;
-  }
+  .showroom-header-end > .icon-button { display: none; }
   .showroom-car {
     inset: 76px 0 0;
   }

@@ -14,10 +14,6 @@
 .collection-nav button:hover { color:var(--text); }
 .collection-tools { display:flex; align-items:center; gap:14px; }
 .collection-wordmark { letter-spacing:5px; font-size:15px; font-weight:350; color:var(--silver); margin-right:15px; }
-.collection-menu { display:none; }
-.collection-mobile-nav { position:absolute; left:0; right:0; top:100%; background:var(--bg); border-bottom:1px solid var(--border); padding:12px 24px; box-shadow:0 24px 35px #0004; }
-.collection-mobile-nav button { display:flex; align-items:center; justify-content:space-between; min-height:48px; width:100%; text-align:left; border-bottom:1px solid var(--border); color:var(--muted); }
-.collection-mobile-nav button[aria-current="page"] { color:var(--text); }
 .showroom-brand>svg { border:0; border-radius:0; padding:0; background:none; width:43px; height:43px; }
 .brand-icon { border:0; border-radius:0; background:none; box-shadow:none; }
 .page:not(.hero-home) { max-width:1370px; padding:58px 54px 44px; }
@@ -157,6 +153,10 @@ dialog.modal[open]::backdrop { animation: backdropEnter .28s ease both; }
 .toast, .offline-banner, .app-update-banner { animation: garageContentEnter .34s cubic-bezier(.2,.75,.25,1) both; }
 .notification-button i { animation: reminderGlow 2.8s ease-in-out infinite; }
 .chart-tooltip, .recharts-tooltip-wrapper { transition: opacity .18s ease; }
+@media (hover:none) {
+  .bottom-nav > button:hover { transform:none; }
+  .bottom-nav > button.active svg { animation:none; }
+}
 
 @keyframes garagePageEnter { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:translateY(0); } }
 @keyframes garageContentEnter { from { opacity:0; transform:translateY(13px); } to { opacity:1; transform:translateY(0); } }
@@ -179,7 +179,6 @@ dialog.modal[open]::backdrop { animation: backdropEnter .28s ease both; }
   .showroom-watermark, .notification-button i { animation:none !important; }
 }
 
-@media(min-width:1101px) { .collection-mobile-nav { display:none; } }
 @media(max-width:1100px) {
   .collection-header { padding:0 30px; height:84px; }
   .collection-nav { gap:20px; }
@@ -195,7 +194,6 @@ dialog.modal[open]::backdrop { animation: backdropEnter .28s ease both; }
   .collection-nav,.collection-install { display:none; }
   .collection-tools { gap:1px; }
   .collection-tools .icon-button { width:36px; min-width:36px; }
-  .collection-menu { display:inline-flex; }
   .page:not(.hero-home) { padding:30px 22px 96px; }
   .page-heading { align-items:flex-start; gap:16px; margin-bottom:28px; }
   .page-heading h1 { font-size:31px; margin:12px 0; letter-spacing:-1px; }

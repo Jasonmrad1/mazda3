@@ -10,8 +10,6 @@ import {
   ArrowUpRight,
   WifiOff,
   Download,
-  Menu,
-  X,
 } from "lucide-react";
 import { useGarage } from "./lib/store";
 import type { Tab } from "./lib/types";
@@ -54,7 +52,6 @@ export default function App() {
     [modal, setModal] = useState<ModalState | null>(null),
     [offline, setOffline] = useState(!navigator.onLine),
     [install, setInstall] = useState<InstallEvent | null>(null),
-    [sidebar, setSidebar] = useState(false),
     [appUpdate, setAppUpdate] = useState<(() => Promise<void>) | null>(null);
   useEffect(() => {
     const onPop = () => setRoute(readLocation());
@@ -90,7 +87,6 @@ export default function App() {
       location.pathname + (params.size ? "?" + params.toString() : ""),
     );
     setRoute({ tab, section });
-    setSidebar(false);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
   const alerts = dueAlerts(data);
@@ -116,9 +112,7 @@ export default function App() {
             {install && <button className="icon-button collection-install" aria-label="Install My Garage" onClick={async () => {await install.prompt();const result=await install.userChoice;if(result.outcome==="accepted"){setInstall(null);toast("My Garage added to your device");}}}><Download size={18}/></button>}
             <button className="notification-button icon-button" aria-label={"Care reminders, "+alerts.length+" due"} onClick={() => navigate("care","reminders")}><Bell size={18}/>{alerts.length>0&&<i/>}</button>
             <button className="icon-button" aria-label="Open garage settings" onClick={() => open({type:"settings"})}><Settings size={18}/></button>
-            <button className="icon-button collection-menu" aria-label={sidebar?"Close navigation":"Open navigation"} aria-expanded={sidebar} onClick={() => setSidebar(!sidebar)}>{sidebar?<X size={21}/>:<Menu size={21}/>}</button>
           </div>
-          {sidebar && <nav className="collection-mobile-nav" aria-label="Compact navigation">{nav.map(n => <button key={n.id} aria-current={route.tab===n.id?"page":undefined} onClick={() => navigate(n.id)}>{n.label}<ArrowUpRight size={14}/></button>)}</nav>}
         </header>
         {offline && (
           <div className="offline-banner">

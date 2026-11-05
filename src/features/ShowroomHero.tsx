@@ -4,10 +4,7 @@ import {
   ArrowDown,
   ArrowUpRight,
   Camera,
-  ChevronRight,
-  Menu,
   Settings,
-  X,
 } from "lucide-react";
 import { useGarage } from "../lib/store";
 import type { Tab } from "../lib/types";
@@ -24,10 +21,8 @@ export function ShowroomHero({
   navigate: (tab: Tab, section?: string) => void;
 }) {
   const { data } = useGarage();
-  const [menu, setMenu] = useState(false),
-    [view, setView] = useState<"exterior" | "interior">("exterior");
+  const [view, setView] = useState<"exterior" | "interior">("exterior");
   const go = (tab: Tab) => {
-    setMenu(false);
     navigate(tab);
   };
   const enter = () =>
@@ -74,30 +69,8 @@ export function ShowroomHero({
           >
             <Settings size={18} />
           </button>
-          <button
-            className="icon-button showroom-menu-toggle"
-            aria-label={menu ? "Close showroom menu" : "Open showroom menu"}
-            onClick={() => setMenu((v) => !v)}
-          >
-            {menu ? <X size={21} /> : <Menu size={21} />}
-          </button>
         </div>
       </header>
-      {menu && (
-        <nav
-          className="showroom-mobile-menu"
-          aria-label="Showroom mobile navigation"
-        >
-          {(["home", "care", "fuel", "garage", "assistant"] as Tab[]).map(
-            (tab) => (
-              <button key={tab} onClick={() => go(tab)}>
-                {tab[0].toUpperCase() + tab.slice(1)}
-                <ChevronRight size={16} />
-              </button>
-            ),
-          )}
-        </nav>
-      )}
       <div className="showroom-watermark" aria-hidden="true">
         MAZDA3
       </div>

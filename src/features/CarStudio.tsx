@@ -135,7 +135,13 @@ export function CarStudio({
               viewer.setBackground({ color: [0.016, 0.016, 0.016] });
               viewer.getCameraLookAt((error, camera) => {
                 if (!error && active) {
-                  const factor = hero ? 0.36 : 0.45;
+                  // A portrait viewport needs more camera distance to keep the
+                  // complete hatchback in frame instead of cropping its ends.
+                  const factor = hero
+                    ? matchMedia("(max-width:760px)").matches
+                      ? 0.58
+                      : 0.36
+                    : 0.45;
                   const pose: CameraPose = {
                     target: camera.target,
                     position: camera.position.map(

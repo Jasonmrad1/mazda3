@@ -314,6 +314,8 @@ export function CarStudio({
           allowFullScreen
           referrerPolicy="strict-origin-when-cross-origin"
         />
+        <div className="studio-iframe-mask studio-iframe-mask-top" />
+        <div className="studio-iframe-mask studio-iframe-mask-bottom" />
         {status === "loading" && (
           <div className="studio-loading" role="status">
             <Box size={35} strokeWidth={1} />

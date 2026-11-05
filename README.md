@@ -22,6 +22,16 @@ npm run preview  # Serve production PWA, normally port 4173
 
 For browser tests against the production build, set `TEST_BASE_URL=http://127.0.0.1:4173`. The Playwright configuration uses installed Chrome; change the channel if necessary.
 
+## Deploy to Render
+
+The root `render.yaml` configures this frontend as a Render Static Site. Connect the repository in Render with **New > Blueprint** and deploy the Blueprint, or create a Static Site manually with:
+
+- Build command: `npm ci && npm run build`
+- Publish directory: `dist`
+- Rewrite rule: `/*` to `/index.html` (for client-side routes)
+
+The static site deploy does not include the optional AI proxy. The garage works without it; configure an authenticated, HTTPS assistant backend separately if needed. Do not expose the sample loopback proxy as a public service without adding authenticated access.
+
 ## What works
 
 The November refinement adds simpler Home / Care / Fuel / Garage / Assistant navigation, four prominent everyday actions, short forms with expandable optional details, an essential-care default with the complete inspection catalog still accessible, and a single four-tire pressure form. Entered mileage is preserved across input-unit changes.

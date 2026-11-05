@@ -554,6 +554,21 @@ summary::-webkit-details-marker {
 .studio-stage iframe.ready {
   opacity: 1;
 }
+.studio-iframe-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 2;
+  background: #111111;
+  pointer-events: none;
+}
+.studio-iframe-mask-top {
+  top: 0;
+}
+.studio-iframe-mask-bottom {
+  bottom: 0;
+}
 .studio-orbit {
   position: absolute;
   width: 80%;
@@ -636,7 +651,7 @@ summary::-webkit-details-marker {
 .studio-controls {
   position: absolute;
   right: 23px;
-  bottom: 47px;
+  bottom: 6px;
   z-index: 3;
   display: flex;
   align-items: center;
@@ -1050,7 +1065,7 @@ summary::-webkit-details-marker {
   .studio-controls {
     left: 20px;
     right: auto;
-    bottom: 47px;
+    bottom: 6px;
   }
   .studio-controls button {
     min-height: 36px;
@@ -1273,7 +1288,7 @@ summary::-webkit-details-marker {
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    bottom: 45px;
+    bottom: 6px;
     width: max-content;
     max-width: 95%;
     gap: 4px;

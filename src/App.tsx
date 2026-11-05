@@ -4,6 +4,7 @@ import {
   House,
   Wrench,
   Fuel,
+  Warehouse,
   Sparkles,
   Bell,
   Settings,
@@ -26,7 +27,7 @@ const nav = [
   { id: "home", label: "Home", mobile: "Home", icon: House },
   { id: "care", label: "Care", mobile: "Care", icon: Wrench },
   { id: "fuel", label: "Fuel", mobile: "Fuel", icon: Fuel },
-  { id: "garage", label: "Garage", mobile: "Garage", icon: MazdaIcon },
+  { id: "garage", label: "Garage", mobile: "Garage", icon: Warehouse },
   {
     id: "assistant",
     label: "Assistant",

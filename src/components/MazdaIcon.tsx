@@ -1,6 +1,4 @@
 import type { ImgHTMLAttributes } from "react";
-import emblem from "../assets/mazda-emblem-clean.png";
-
 /** Mazda's winged emblem, supplied as a transparent image asset. */
 export function MazdaIcon({
   size = 24,
@@ -14,7 +12,7 @@ export function MazdaIcon({
   return (
     <img
       {...props}
-      src={emblem}
+      src="/mazdaLogo.png"
       alt={alt}
       width={size}
       height={size}

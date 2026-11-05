@@ -1,0 +1,38 @@
+{
+  "name": "my-garage",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "lucide-react": "^1.69.0",
+    "dexie": "^4.4.7",
+    "recharts": "^3.10.1",
+    "pdfjs-dist": "^6.5.438",
+    "jspdf": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-react": "^6.2.1",
+    "vite": "^8.3.6",
+    "typescript": "^7.0.2",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0",
+    "fake-indexeddb": "^6.2.7",
+    "@playwright/test": "^1.64.1",
+    "prettier": "^3.6.2"
+  },
+  "overrides": {
+    "glob": "^14.0.3"
+  }
+}

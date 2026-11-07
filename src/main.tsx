@@ -54,6 +54,30 @@ const updateSW = registerSW({
     console.info("My Garage is ready offline.");
   },
 });
+if ("serviceWorker" in navigator) {
+  let hadController = !!navigator.serviceWorker.controller;
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController) {
+      hadController = true;
+      return;
+    }
+    if (refreshing) return;
+    const reload = async () => {
+      refreshing = true;
+      location.reload();
+    };
+    if (
+      document.querySelector(".sign-in-page") &&
+      !document.querySelector('form[aria-busy="true"]')
+    )
+      void reload();
+    else
+      window.dispatchEvent(
+        new CustomEvent("garage-update-available", { detail: reload }),
+      );
+  });
+}
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>

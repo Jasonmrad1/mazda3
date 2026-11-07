@@ -257,7 +257,7 @@ Deno.serve(
   createHandler({
     origin:
       Deno.env.get("APP_ORIGIN") ??
-      "https://my-garage-mazda-bp.nicecrab11.chatgpt.site",
+      "https://mazda3-ituc.onrender.com",
     configured: () => !!apiKey && models.length > 0,
     async authorize(token) {
       const scoped = client(token);

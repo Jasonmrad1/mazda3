@@ -53,6 +53,18 @@ export function AuthGate({ children }: { children: ReactNode }) {
     [capsLock, setCapsLock] = useState(false),
     [help, setHelp] = useState(false);
   const signingIn = useRef(false);
+  const [installUpdate, setInstallUpdate] = useState<
+    null | (() => Promise<void>)
+  >(null);
+  useEffect(() => {
+    const onUpdate = (event: Event) => {
+      const apply = (event as CustomEvent<() => Promise<void>>).detail;
+      if (typeof apply === "function") setInstallUpdate(() => apply);
+    };
+    window.addEventListener("garage-update-available", onUpdate);
+    return () =>
+      window.removeEventListener("garage-update-available", onUpdate);
+  }, []);
   useEffect(() => {
     let active = true;
     let checking: Promise<void> | null = null;
@@ -165,6 +177,22 @@ export function AuthGate({ children }: { children: ReactNode }) {
             <h1 id="sign-in-title">Welcome back.</h1>
             <p>Sign in to your personal garage.</p>
           </div>
+          {installUpdate && (
+            <div className="sign-in-update" role="status">
+              <span>A newer version is ready.</span>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  void installUpdate().catch(() =>
+                    setError("Close and reopen the app to finish updating."),
+                  )
+                }
+              >
+                Update app
+              </button>
+            </div>
+          )}
           <form
             aria-busy={busy}
             onSubmit={async (event) => {
@@ -284,11 +312,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
                 {error}
               </p>
             )}
-            <button
-              className="sign-in-submit"
-              type="submit"
-              disabled={busy}
-            >
+            <button className="sign-in-submit" type="submit" disabled={busy}>
               {busy ? (
                 <LoaderCircle className="login-spinner" size={18} />
               ) : null}

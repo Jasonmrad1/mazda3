@@ -4,6 +4,16 @@ services:
     runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
+    headers:
+      - path: /sw.js
+        name: Cache-Control
+        value: no-store
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /manifest.webmanifest
+        name: Cache-Control
+        value: no-cache
     routes:
       - type: rewrite
         source: /*

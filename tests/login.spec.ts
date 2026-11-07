@@ -17,6 +17,11 @@ test("login stays readable and usable on small phones and desktop", async ({
     await expect(
       page.getByRole("button", { name: "Sign in", exact: true }),
     ).toBeEnabled();
+    expect(
+      await page
+        .locator(".sign-in-page")
+        .evaluate((el) => getComputedStyle(el).backgroundColor),
+    ).toBe("rgb(7, 7, 7)");
     await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
     expect(
       await page.evaluate(
@@ -47,6 +52,28 @@ test("login stays readable and usable on small phones and desktop", async ({
   );
   await page.getByRole("button", { name: "Trouble signing in?" }).click();
   await expect(page.locator("#sign-in-help-text")).toBeVisible();
+});
+test("app updates are reachable on the login screen before signing in", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("heading", { name: "Welcome back." }).waitFor();
+  await page.evaluate(() =>
+    window.dispatchEvent(
+      new CustomEvent("garage-update-available", {
+        detail: async () => {
+          document.documentElement.dataset.loginUpdateApplied = "yes";
+        },
+      }),
+    ),
+  );
+  await expect(
+    page.getByRole("button", { name: "Update app", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Update app", exact: true }).click();
+  expect(
+    await page.locator("html").getAttribute("data-login-update-applied"),
+  ).toBe("yes");
 });
 test("invalid credentials release the sign-in button", async ({ page }) => {
   await page.route("**/auth/v1/token?grant_type=password", (route) =>

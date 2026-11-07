@@ -23,7 +23,7 @@ In Supabase Dashboard → Edge Functions → Secrets, add:
 
 - `GEMINI_API_KEY`: your private Google AI Studio Gemini key. Never paste it into the app, chat, a VITE variable, or source control.
 - `GEMINI_MODEL`: optional. Defaults to `gemini-3.8-flash` with automatic fallback through `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-2.5-flash`, and `gemini-2.5-flash-lite`. A lower model in this list can be used as the starting point. Other model names are rejected.
-- `APP_ORIGIN`: `https://my-garage-mazda-bp.nicecrab11.chatgpt.site`
+- `APP_ORIGIN`: `https://mazda3-ituc.onrender.com` (origin only, no trailing slash). Update any older value when changing hosts.
 
 Supabase provides `SUPABASE_URL` and the server's public/anon client key. The function does not use a service-role key. Set the dashboard switch **Verify JWT with legacy secret** to **OFF**. The handler independently verifies each user bearer token with `auth.getUser(token)` and then checks membership. This supports current asymmetric Supabase session tokens. The publishable key alone is rejected by the handler.
 

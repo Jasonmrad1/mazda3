@@ -1,12 +1,20 @@
-import { StrictMode, Component, type ReactNode, type ErrorInfo } from "react";
+import {
+  StrictMode,
+  Component,
+  lazy,
+  Suspense,
+  type ReactNode,
+  type ErrorInfo,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
-import App from "./App";
+const App = lazy(() => import("./App"));
 import { GarageProvider } from "./lib/store";
+import { AuthGate } from "./components/AuthGate";
 import "./styles.css";
 import "./premium.css";
 import "./interaction.css";
-import './showroom.css';
+import "./showroom.css";
 import "./collection.css";
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -48,9 +56,19 @@ const updateSW = registerSW({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <GarageProvider>
-        <App />
-      </GarageProvider>
+      <AuthGate>
+        <GarageProvider>
+          <Suspense
+            fallback={
+              <div className="loading-screen">
+                <p>Opening your garage...</p>
+              </div>
+            }
+          >
+            <App />
+          </Suspense>
+        </GarageProvider>
+      </AuthGate>
     </ErrorBoundary>
   </StrictMode>,
 );

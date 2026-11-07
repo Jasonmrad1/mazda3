@@ -27,9 +27,11 @@ import {
   SectionTitle,
   Note,
   Badge,
-  Field,
   type OpenModal,
 } from "../components/ui";
+import { retrieve, type Citation } from "../lib/assistantContext";
+import { askGemini, assistantReady } from "../lib/garageAssistant";
+import Markdown from "react-markdown";
 export function ArticleModal({
   subject,
   onClose,
@@ -105,92 +107,14 @@ export function ArticleModal({
     </Modal>
   );
 }
-type Citation = {
-  title: string;
-  reference: string;
-  url?: string;
-  documentId?: string;
-  page?: number;
-  excerpt?: string;
-};
 type Message = {
   role: "user" | "assistant";
   text: string;
   sources?: Citation[];
+  model?: string;
 };
-function retrieve(
-  query: string,
-  data: ReturnType<typeof useGarage>["data"],
-): Citation[] {
-  const terms = query
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(
-      (t) =>
-        t.length > 2 &&
-        ![
-          "the",
-          "how",
-          "what",
-          "should",
-          "with",
-          "does",
-          "can",
-          "for",
-          "this",
-          "car",
-          "my",
-        ].includes(t),
-    );
-  const results: { score: number; citation: Citation }[] = [];
-  for (const a of articles) {
-    const text = (a.title + " " + a.keywords + " " + a.body).toLowerCase();
-    const score = terms.filter((t) => text.includes(t)).length;
-    if (score)
-      results.push({
-        score,
-        citation: {
-          title: a.title,
-          reference: a.reference,
-          url: a.source,
-          excerpt: a.body,
-        },
-      });
-  }
-  const mechanical =
-    /oil|engine|fluid|tire|tyre|pressure|brake|transmission|spark|coolant|wheel|service/i.test(
-      query,
-    );
-  const pageNumber = query.match(/page\s*(\d+)/i)?.[1];
-  for (const doc of data.documents) {
-    if (
-      mechanical &&
-      (/nav|connect/i.test(doc.name) || doc.kind === "Navigation manual")
-    )
-      continue;
-    doc.pages.forEach((page, i) => {
-      if (pageNumber && i + 1 !== Number(pageNumber)) return;
-      const score = terms.filter((t) => page.toLowerCase().includes(t)).length;
-      if (score)
-        results.push({
-          score,
-          citation: {
-            title: doc.name,
-            reference: `${doc.name} · PDF page ${i + 1}`,
-            documentId: doc.id,
-            page: i + 1,
-            excerpt: page.slice(0, 1800),
-          },
-        });
-    });
-  }
-  return results
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((r) => r.citation);
-}
 export function Assistant({ open }: { open: OpenModal }) {
-  const { data, update, toast } = useGarage();
+  const { data } = useGarage();
   const [section, setSection] = useState("assistant"),
     [query, setQuery] = useState(""),
     [search, setSearch] = useState(""),
@@ -198,6 +122,20 @@ export function Assistant({ open }: { open: OpenModal }) {
     [busy, setBusy] = useState(false),
     [config, setConfig] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [aiReady, setAiReady] = useState<boolean | null>(null);
+  useEffect(() => {
+    let active = true;
+    void assistantReady()
+      .then((ready) => {
+        if (active) setAiReady(ready);
+      })
+      .catch(() => {
+        if (active) setAiReady(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [navigator.onLine]);
   const bottom = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (messages.length)
@@ -215,7 +153,15 @@ export function Assistant({ open }: { open: OpenModal }) {
     setBusy(true);
     try {
       let answer = "";
-      const sources = retrieve(question, data);
+      let model: string | undefined;
+      const previousQuestion =
+        messages.filter((m) => m.role === "user").at(-1)?.text ?? "";
+      const retrievalQuery =
+        question.split(/\s+/).length < 5 ||
+        /\b(it|that|those|them)\b/i.test(question)
+          ? question + " " + previousQuestion
+          : question;
+      const sources = retrieve(retrievalQuery, data);
       const lower = question.toLowerCase();
       if (
         /overheat|oil pressure|brake fail|sidewall bulge|tire bulge|tyre bulge|brakes (not|aren.t|are not) working/.test(
@@ -261,32 +207,21 @@ export function Assistant({ open }: { open: OpenModal }) {
         answer =
           "I do not have a source that supports a reliable answer to that question. Upload the relevant owner’s manual or confirm the fitted equipment. I will not guess a fluid grade, part, service interval or diagnosis.";
       if (
-        data.settings.assistantEndpoint &&
+        navigator.onLine &&
         !/overheat|oil pressure|brake fail|bulge/.test(lower)
       ) {
-        const response = await fetch(data.settings.assistantEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: question,
-            vehicle: { ...data.vehicle, vin: undefined, photo: undefined },
-            history: data.history.map(({ attachments, ...h }) => h),
-            fuel: data.fuel,
-            context: sources,
-          }),
-          signal: AbortSignal.timeout(30000),
-          credentials: "omit",
-        });
-        if (!response.ok)
-          throw Error(
-            "The optional AI service is unavailable. Your local handbook and records still work.",
-          );
-        const json = await response.json();
-        if (typeof json.answer !== "string")
-          throw Error("The AI service returned an invalid response.");
-        answer = json.answer;
+        const generated = await askGemini(question, data, sources, messages);
+        answer = generated.answer;
+        model = generated.model;
+      } else if (!navigator.onLine) {
+        answer =
+          "Offline reference mode - reconnect for Gemini analysis.\n\n" +
+          answer;
       }
-      setMessages((v) => [...v, { role: "assistant", text: answer, sources }]);
+      setMessages((v) => [
+        ...v,
+        { role: "assistant", text: answer, sources, model },
+      ]);
     } catch (e) {
       setMessages((v) => [
         ...v,
@@ -374,8 +309,12 @@ export function Assistant({ open }: { open: OpenModal }) {
                 <h3>Garage Assistant</h3>
                 <span>
                   <i className="status-dot green" />
-                  {data.settings.assistantEndpoint
-                    ? "Optional AI connected"
+                  {navigator.onLine
+                    ? aiReady === true
+                      ? "Gemini ready - private garage context"
+                      : aiReady === null
+                        ? "Checking Gemini connection..."
+                        : "Gemini setup pending"
                     : "Offline reference mode"}
                 </span>
               </div>
@@ -420,17 +359,35 @@ export function Assistant({ open }: { open: OpenModal }) {
                   <span className="eyebrow">
                     {m.role === "user" ? "YOU" : "GARAGE ASSISTANT"}
                   </span>
-                  <p>{m.text}</p>
+                  {m.role === "user" ? (
+                    <p>{m.text}</p>
+                  ) : (
+                    <div className="assistant-markdown">
+                      <Markdown
+                        skipHtml
+                        components={{
+                          img: () => null,
+                          a: ({ children }) => <span>{children}</span>,
+                        }}
+                      >
+                        {m.text}
+                      </Markdown>
+                    </div>
+                  )}
                   {m.sources && m.sources.length > 0 && (
                     <div className="citations">
                       {m.sources.map((c, j) => (
                         <button key={j} onClick={() => sourceClick(c)}>
-                          <BookOpen size={13} />
-                          {c.reference}
+                          <BookOpen size={13} />[{c.id}] {c.reference}
                           <ArrowUpRight size={12} />
                         </button>
                       ))}
                     </div>
+                  )}
+                  {m.model && (
+                    <small className="assistant-model-label">
+                      Answered with {m.model}
+                    </small>
                   )}
                 </div>
               ))}
@@ -465,8 +422,8 @@ export function Assistant({ open }: { open: OpenModal }) {
               </button>
             </form>
             <p className="chat-footnote">
-              {data.settings.assistantEndpoint
-                ? "AI can make mistakes. Verify the cited source."
+              {navigator.onLine
+                ? "Gemini uses your records and retrieved sources. Verify important instructions."
                 : "Local lookup, not generative AI. Specifications are never guessed."}
             </p>
           </section>
@@ -600,73 +557,24 @@ export function Assistant({ open }: { open: OpenModal }) {
       )}
       {config && (
         <Modal
-          title="Optional AI connection"
-          subtitle="The offline handbook works without an AI service."
+          title="Garage Assistant"
+          subtitle="Gemini, with your garage in context."
           onClose={() => setConfig(false)}
         >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              const f = new FormData(e.currentTarget);
-              const endpoint = String(f.get("endpoint")).trim();
-              if (endpoint) {
-                try {
-                  const url = new URL(endpoint);
-                  if (
-                    url.protocol !== "https:" &&
-                    url.hostname !== "localhost" &&
-                    url.hostname !== "127.0.0.1"
-                  )
-                    throw Error();
-                } catch {
-                  toast(
-                    "Use an HTTPS backend endpoint, or localhost for development.",
-                  );
-                  return;
-                }
-                if (!f.get("consent")) {
-                  toast("Confirm what will be shared before connecting.");
-                  return;
-                }
-              }
-              void update((d) => {
-                d.settings.assistantEndpoint = endpoint;
-              }).then(() => {
-                setConfig(false);
-                toast(
-                  endpoint
-                    ? "Optional AI endpoint saved"
-                    : "Offline reference mode enabled",
-                );
-              });
-            }}
-          >
-            <Field label="Your secure backend endpoint">
-              <input
-                name="endpoint"
-                type="url"
-                defaultValue={data.settings.assistantEndpoint}
-                placeholder="https://your-backend.example/api/assistant"
-              />
-            </Field>
-            <Note>
-              The endpoint receives your question, vehicle specifications,
-              service and fuel history, and selected reference excerpts. Your
-              VIN, photos and document files are excluded. AI requests require
-              internet. Never paste an API key here.
-            </Note>
-            <label className="check-field">
-              <input
-                type="checkbox"
-                name="consent"
-                defaultChecked={!!data.settings.assistantEndpoint}
-              />
-              I choose to share this context with my configured backend
-            </label>
-            <div className="modal-footer">
-              <button className="button primary">Save connection</button>
-            </div>
-          </form>
+          <Note>
+            When you ask a question online, your vehicle specifications, service
+            and fuel records, tire checks, reminders, calculated maintenance
+            status, and relevant manual passages are sent through your
+            authenticated Supabase backend to Gemini. Unsynced local records are
+            included. Your VIN, images, document files, passwords, and keys are
+            excluded.
+          </Note>
+          <p className="form-help">
+            Manual answers include document names and PDF page references. The
+            assistant distinguishes recorded facts from possible causes and asks
+            for confirmation when specifications are unknown. Offline, the
+            handbook and reference lookup remain available.
+          </p>
         </Modal>
       )}
     </div>

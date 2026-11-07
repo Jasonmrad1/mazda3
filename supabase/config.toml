@@ -1,0 +1,9 @@
+project_id = "my-garage"
+
+[auth]
+enable_signup = false
+
+[functions.garage-assistant]
+# The dashboard's legacy-secret check rejects newer asymmetric session tokens.
+# The handler validates every bearer token using Auth.getUser and membership.
+verify_jwt = false

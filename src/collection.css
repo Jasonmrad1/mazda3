@@ -1,5 +1,28 @@
 /* One visual language from the showroom through every garage tool. */
 :root { --surface:#0c0c0c; --elevated:#161616; --border:#252525; --shadow:none; }
+.sign-in-page { min-height:100svh; display:grid; grid-template-columns:1.2fr 1fr; background:#08090b; color:#f5f6f8; }
+.sign-in-photograph { background:linear-gradient(90deg,#08090b12,#08090b),linear-gradient(0deg,#08090bbd,transparent 70%),url('/images/mazda_dusk.jpeg') center/cover; min-height:100svh; }
+.sign-in-card { align-self:center; width:min(430px,100%); padding:64px 40px 48px; margin:0 auto; }
+.sign-in-brand { display:flex; gap:16px; align-items:center; margin-bottom:70px; }
+.sign-in-brand>span { font-size:12px; letter-spacing:2.5px; }
+.sign-in-brand small { display:block; font-size:6px; color:#8a9097; letter-spacing:1.6px; margin-top:7px; }
+.sign-in-card .eyebrow { font-size:8px; color:#8a9097; letter-spacing:2.5px; }
+.sign-in-card h1 { margin:17px 0; font-size:46px; line-height:1.12; font-weight:300; letter-spacing:-1.7px; }
+.sign-in-intro { color:#9299a2; font-size:11px; line-height:1.8; margin-bottom:30px; }
+.sign-in-card form { display:grid; gap:20px; }
+.sign-in-card .field>span { color:#a8afb8; }
+.sign-in-card input { background:#111419; border:1px solid #30363e; color:#f5f6f8; width:100%; min-height:48px; }
+.sign-in-card .button { width:100%; margin-top:5px; min-height:48px; }
+.sign-in-card .button>svg:last-child { margin-left:auto; }
+.sign-in-note { color:#707781; font-size:9px; line-height:1.7; margin-top:23px; }
+.assistant-markdown { font-size:12px; line-height:1.8; overflow-wrap:anywhere; }
+.assistant-markdown p { margin:10px 0; white-space:normal; }
+.assistant-markdown h1,.assistant-markdown h2,.assistant-markdown h3 { font-size:14px; font-weight:500; margin:17px 0 7px; }
+.assistant-markdown ul,.assistant-markdown ol { padding-left:20px; margin:10px 0; }
+.assistant-markdown li { margin:5px 0; }
+.assistant-markdown code { white-space:pre-wrap; }
+.assistant-model-label { display:block; margin-top:12px; font-size:8px; color:var(--muted); letter-spacing:.4px; }
+@media(max-width:760px){.sign-in-page{display:block;position:relative;isolation:isolate}.sign-in-photograph{position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,#08090b 20%,#08090bd9 65%,#08090b99),url('/images/mazda_dusk.jpeg') center top/auto 55svh no-repeat}.sign-in-card{padding:50px 28px 40px;min-height:100svh;display:flex;flex-direction:column;justify-content:center}.sign-in-brand{margin-bottom:65px}.sign-in-card h1{font-size:42px}}
 :root[data-theme="light"] { --surface:#fff; --elevated:#ededeb; --border:#d7d7d3; }
 .main-shell { margin-left:0; }
 .collection-header { height:100px; padding:0 max(32px,calc((100vw - 1456px)/2)); position:relative; z-index:20; background:var(--bg); border-bottom:1px solid var(--border); }

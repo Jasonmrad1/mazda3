@@ -30,7 +30,7 @@ The root `render.yaml` configures this frontend as a Render Static Site. Connect
 - Publish directory: `dist`
 - Rewrite rule: `/*` to `/index.html` (for client-side routes)
 
-The static site deploy does not include the optional AI proxy. The garage works without it; configure an authenticated, HTTPS assistant backend separately if needed. Do not expose the sample loopback proxy as a public service without adding authenticated access.
+The static site deploy includes the private password sign-in screen and offline garage. Deploy the Gemini Supabase Edge Function separately using GEMINI_SETUP.md. Never put the Gemini key in a VITE environment variable.
 
 ## What works
 
@@ -77,9 +77,9 @@ The production service worker caches the app, bundled imagery/fonts/PDF and PDF/
 
 ## Optional AI and future integrations
 
-The app is fully usable without generative AI. In Assistant connection settings, users can opt in to an HTTPS backend that accepts a JSON request containing `query`, sanitized `vehicle`, service `history`, `fuel`, and up to three retrieved `context` citations, returning `{ "answer": "..." }`. VIN, photos and full files are excluded. The included `server/proxy.mjs` is a loopback-only example proxy with size limits, rate limits, explicit CORS origin, timeout, a grounding policy and server-only gateway credentials. Configure `server/.env.example` values in the process environment and run `node --env-file=server/.env server/proxy.mjs`. A public backend must add authenticated access through a reverse proxy/session layer. A paid AI provider is not provisioned or connected by this project.
+Garage Assistant uses an authenticated Supabase Edge Function and Gemini, with account membership checks and server usage limits. It receives current app records, measured fuel metrics, maintenance deadlines, tires, reminders, recent chat, and retrieved manual passages. VIN, photos and file bytes are excluded. The browser never receives the Gemini key. See [GEMINI_SETUP.md](GEMINI_SETUP.md) for manual user creation, disabling public signup, membership grants, function deployment, and server secrets. Offline reference lookup remains available. The function must be deployed and its server secrets set before generated answers work.
 
-The data model uses stable vehicle IDs and `vehicleId` relationships for future multi-car support. No Bluetooth adapter, cloud sync or vehicle-control commands are implemented. Future OBD integration should detect capabilities, preserve observation timestamps and units, and stay read-only by default.
+The data model uses stable vehicle IDs and `vehicleId` relationships for future multi-car support. Supabase sync uses typed tables and durable pending records. No Bluetooth adapter or vehicle-control commands are implemented. Future OBD integration should detect capabilities, preserve observation timestamps and units, and stay read-only by default.
 
 ## Structure
 
@@ -88,7 +88,7 @@ The data model uses stable vehicle IDs and `vehicleId` relationships for future 
 - `src/lib/`: typed domain model, calculations, Dexie persistence, exports and reminders
 - `src/data/`: sourced maintenance and handbook reference data
 - `public/`: supplied car photos, bundled font/license, offline mechanical reference
-- `server/`: optional AI proxy contract and example
+- `supabase/`: relational migrations, private Gemini function and SQL security checks
 - `tests/`: real Chrome end-to-end workflows
 
 Production release checks should include iOS Safari and Android Chrome on actual devices, calendar imports and OS notification delivery. The current browser QA covers desktop Chrome and a mobile Chrome viewport, not actual mobile hardware.

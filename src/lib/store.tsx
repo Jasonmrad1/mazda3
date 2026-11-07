@@ -38,7 +38,6 @@ type Store = {
   cloudEmail: string;
   cloudError: string;
   pendingCount: number;
-  signIn: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   syncNow: () => Promise<void>;
   useCloudCopy: () => Promise<void>;
@@ -240,14 +239,6 @@ export function GarageProvider({ children }: { children: ReactNode }) {
   const reset = async () => {
     await replace(seed());
   };
-  const signIn = async (email: string) => {
-    if (!supabase) throw Error("Cloud sync is not configured.");
-    const { error: authError } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: location.origin },
-    });
-    if (authError) throw authError;
-  };
   const signOut = async () => {
     user.current = null;
     if (running.current) await running.current;
@@ -292,7 +283,6 @@ export function GarageProvider({ children }: { children: ReactNode }) {
         cloudEmail,
         cloudError,
         pendingCount,
-        signIn,
         signOut,
         syncNow,
         useCloudCopy: () => resolve("remote"),

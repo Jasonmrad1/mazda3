@@ -1,50 +1,31 @@
-# Supabase persistence plan
+# Record-based persistence and sync
 
-## Current state
+Apply `supabase/migrations/202611070002_relational_sync.sql` in Supabase SQL Editor after migration 001. It is safe to rerun. It imports legacy snapshots and disables their write RPC; the old backups are retained for recovery only.
 
-The React app is offline-first today. Dexie stores a `GarageData` snapshot in browser IndexedDB; this is not SQLite and is specific to this browser profile. Clearing site data can remove the local copy. There is no Supabase project configured, so the app must not imply that records are cloud backed up.
+## Database
 
-## Goal
+Typed tables: `vehicles`, `odometer_readings`, `service_records`, `fuel_entries`, `tires`, `documents`, `reminders`, `custom_tasks`, `user_settings`. Each has an account-scoped primary key, server revision, mutation ID, soft deletion flag, and server update time. Child rows reference the owning account's vehicle. `ownership_expenses` combines service and fuel costs without duplicating them. Flexible editable vehicle specifications use JSONB; numeric values, dates, booleans, files, and records have their own columns.
 
-Keep IndexedDB as the fast offline working copy, with optional authenticated Supabase sync so a lost browser profile does not mean losing the garage. A signed-in account should be able to restore its car profile, odometer readings, maintenance and fuel history, tire checks, reminders, and expenses on another device.
+RLS permits authenticated users to read only their own rows. Writes go through `sync_garage_record`, which derives the owner from the session, checks the expected revision, and recognizes duplicate mutation IDs. The RPC cannot target arbitrary tables. Anonymous access and direct client writes are denied. Photos/PDFs stay in the existing private Storage bucket, with user-scoped file paths.
 
-## Implementation phases
+## Offline behavior
 
-1. **Connect a project.** Create a Supabase project and provide its project URL and public publishable key. Configure the app's allowed auth redirect URLs for the production Site and local development. These two client values are public by design; never put a `service_role` key in the browser or source repository.
-2. **Add sign-in.** Use Supabase Auth email magic links. Keep the garage fully usable while signed out. Show explicit states: `On this device`, `Syncing`, `Synced`, `Offline`, and actionable sync errors.
-3. **Create private storage.** Add a `garage_snapshots` table with one JSONB snapshot per authenticated user, plus `schema_version`, monotonic `revision`, and `updated_at`. Enable RLS and allow select/insert/update only when `auth.uid() = user_id`. The client can read and write only its own row.
-4. **Preserve offline edits.** Continue saving to IndexedDB first. Queue/coalesce sync after successful local commits and retry on reconnect. Store the last synced revision and snapshot locally. Use a compare-and-swap RPC (expected revision) so one device cannot silently overwrite newer cloud changes.
-5. **Resolve first sync and conflicts safely.** If the account has no cloud snapshot, offer to upload this device's existing records. If both sides have edits since the last sync, retain both copies and offer `Use cloud copy`, `Keep this device`, or export before replacing. Never silently replace either side. Validate schema versions before applying remote data.
-6. **Move documents to private object storage.** The current `Document.data` field can contain large inline file data. Upload document/photo bytes to a private Storage bucket under the authenticated user's ID, apply matching Storage RLS, and keep metadata plus object paths in the garage snapshot. Migrate existing inline attachments without deleting the source until upload verification succeeds.
-7. **Back up and verify.** Keep the existing JSON/CSV export as a portable backup. Add an account-level `last synced` indicator, a manual sync action, and clear account disconnect/delete flows. Test two-device restore, offline edits, simultaneous edits, expired sessions, oversized attachments, and user-isolation policies before calling cloud sync complete.
+Dexie version 2 stores individual records in IndexedDB. Each record includes `pending`, `deleted`, `revision`, and `mutationId`. An edit and its pending flag are committed in the same local transaction. The UI still receives a convenient assembled vehicle view; that view is never persisted or uploaded as a snapshot.
 
-## Initial database shape
+The worker pulls remote rows, preserves pending local edits, uploads pending rows, and clears each flag only after acknowledging that exact mutation. Edits made during an upload remain pending. Deletions are durable tombstones, so offline devices cannot recreate deleted records by omission. A lost server response is recovered by mutation ID without inserting duplicates.
 
-```sql
-create table public.garage_snapshots (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  schema_version integer not null,
-  revision bigint not null default 1,
-  data jsonb not null,
-  updated_at timestamptz not null default now()
-);
+Sync runs after edits, on reconnect, on focus, at launch/sign-in, and periodically while open. Failed rows stay pending for retry. It runs once at a time per browser, using Web Locks when supported. Conflicting records retain both local and remote values until the user resolves them in Settings. Choosing a side affects conflicting records only.
 
-alter table public.garage_snapshots enable row level security;
-create policy "read own garage" on public.garage_snapshots
-  for select to authenticated using ((select auth.uid()) = user_id);
-create policy "create own garage" on public.garage_snapshots
-  for insert to authenticated with check ((select auth.uid()) = user_id);
-create policy "update own garage" on public.garage_snapshots
-  for update to authenticated using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
-```
+Account caches are isolated. Signing out hides that account's local records while preserving its pending work. Reopening offline uses the account cache when the session cannot be refreshed. Sync requires a valid signed-in session; fully closed browsers cannot run this worker.
 
-Production writes should go through a small revision-checking database function, not blind last-write-wins upserts. Apply migrations in a Supabase project and validate the policies with two different user accounts before enabling sync in the app.
+## Migration and files
 
-## Needed to start
+The first IndexedDB version-2 open converts the old local backup into individual pending records. The SQL migration copies the old cloud backup into the typed tables. Matching records reconcile without copying the complete garage; disagreements become per-record conflicts. Legacy backups are never automatically deleted.
 
-- Supabase project URL
-- Supabase public publishable key (or legacy public anon key)
-- Auth redirect URL allowlist configured for the production app
+Files use deterministic content-hash paths and references in `documents.file_ref` / `vehicles.photo`. Downloaded files are cached locally for offline use. Removing a record syncs its tombstone; old file objects are retained for recovery rather than automatically garbage collected.
 
-Do not send a service-role key. Until the project is connected and two-device restore is verified, local IndexedDB and the user's own export remain the only persistence guarantees.
+## Build and checks
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in ignored `.env.local` / `.env.production.local` files, saved as UTF-8 without a BOM. The browser must never receive a Supabase secret or service-role key. Configure the deployed origin in Supabase Auth's redirect allowlist.
+
+`npm test` covers local persistence, migrations, pending changes, failed uploads, deletion retries, account isolation, concurrent edits, and lost responses. `supabase/tests/relational_sync.sql` contains PostgreSQL assertions for the local test fixture: imported records, account RLS, RPC ownership, anonymous denial, duplicate retries, and stale-edit rejection. A production account's authentication and Storage permissions still require a signed-in end-to-end check after applying the migration.

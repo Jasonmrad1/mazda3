@@ -1,4 +1,3 @@
-import Dexie, { type Table } from "dexie";
 import {
   createContext,
   useContext,
@@ -7,34 +6,38 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import {
+  db,
+  loadGarage,
+  saveGarage,
+  switchOwner,
+  activeOwner,
+} from "./database";
 import { seed, type GarageData } from "./types";
 import { checkBackup } from "./calculations";
 import { sendBrowserAlerts } from "./reminders";
-import { supabase, type CloudSnapshot } from "./supabase";
-import { prepareCloudData, restoreCloudFiles } from "./cloudFiles";
-export class GarageDB extends Dexie {
-  snapshots!: Table<{ id: string; data: GarageData }, string>;
-  constructor(name = "my-garage-v1") {
-    super(name);
-    this.version(1).stores({ snapshots: "id" });
-  }
-}
-export const db = new GarageDB();
-export async function loadGarage(database = db) {
-  return (await database.snapshots.get("garage"))?.data ?? seed();
-}
-export async function saveGarage(data: GarageData, database = db) {
-  await database.snapshots.put({ id: "garage", data });
-}
+import { supabase } from "./supabase";
+import { syncRecords, resolveConflicts, stable } from "./recordSync";
+export { GarageDB, loadGarage, saveGarage, db } from "./database";
+type Status =
+  | "disabled"
+  | "signed_out"
+  | "offline"
+  | "syncing"
+  | "synced"
+  | "conflict"
+  | "error"
+  | "pending";
 type Store = {
   data: GarageData;
-  update: (fn: (d: GarageData) => void) => Promise<void>;
-  replace: (value: unknown) => Promise<void>;
-  toast: (message: string) => void;
+  update: (fn: (data: GarageData) => void) => Promise<void>;
+  replace: (data: unknown) => Promise<void>;
   reset: () => Promise<void>;
-  cloudStatus: "disabled" | "signed_out" | "offline" | "syncing" | "synced" | "conflict" | "error";
+  toast: (message: string) => void;
+  cloudStatus: Status;
   cloudEmail: string;
   cloudError: string;
+  pendingCount: number;
   signIn: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   syncNow: () => Promise<void>;
@@ -42,176 +45,231 @@ type Store = {
   uploadDeviceCopy: () => Promise<void>;
 };
 const Context = createContext<Store | null>(null);
-let queue = Promise.resolve();
+let localQueue = Promise.resolve();
 export function GarageProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<GarageData | null>(null),
     [error, setError] = useState(""),
-    [message, setMessage] = useState(""),
-    [cloudStatus, setCloudStatus] = useState<Store["cloudStatus"]>(supabase ? "signed_out" : "disabled"),
-    [cloudEmail, setCloudEmail] = useState(""),
+    [message, setMessage] = useState("");
+  const [cloudStatus, setStatus] = useState<Status>(
+    supabase ? "signed_out" : "disabled",
+  );
+  const [cloudEmail, setEmail] = useState(""),
     [cloudError, setCloudError] = useState(""),
-    [userId, setUserId] = useState<string | null>(null),
-    [conflict, setConflict] = useState<CloudSnapshot | null>(null);
-  const cloudRevision = useRef(0), cloudReady = useRef(false), cloudWrite = useRef(Promise.resolve());
-  useEffect(() => {
-    loadGarage()
-      .then(setData)
-      .catch(() =>
-        setError(
-          "Your local garage could not be opened. Check browser storage access, then retry. Existing records have not been removed.",
-        ),
-      );
-  }, []);
-  const pushCloud = (value: GarageData, expectedRevision: number | null, id: string) => {
-    const operation = cloudWrite.current.then(async () => {
-      if (!supabase || !navigator.onLine) throw Error("Cloud sync is unavailable offline.");
-      const cloudData = await prepareCloudData(value, id);
-      const { data: result, error: saveError } = await supabase.rpc("save_garage_snapshot", {
-        p_expected_revision: expectedRevision ?? cloudRevision.current,
-        p_schema_version: value.schema,
-        p_data: cloudData,
-      });
-      if (saveError) {
-        if (saveError.code === "40001") {
-          const { data: latest } = await supabase
-            .from("garage_snapshots")
-            .select("data, revision, updated_at")
-            .eq("user_id", id)
-            .maybeSingle();
-          if (latest) {
-            setConflict(latest as CloudSnapshot);
-            setCloudStatus("conflict");
-            setCloudError("A newer cloud copy was saved on another device.");
-          }
-        }
-        throw saveError;
-      }
-      const saved = Array.isArray(result) ? result[0] : result;
-      if (!saved?.revision) throw Error("Supabase did not confirm the saved garage.");
-      cloudRevision.current = Number(saved.revision);
-    });
-    cloudWrite.current = operation.catch(() => {});
-    return operation;
+    [pendingCount, setPending] = useState(0);
+  const user = useRef<string | null>(null),
+    running = useRef<Promise<void> | null>(null);
+  const refresh = async () => {
+    const owner = await activeOwner();
+    const rows = await db.records.where("owner").equals(owner).toArray();
+    const next = await loadGarage();
+    setData((current) => (stable(current) === stable(next) ? current : next));
+    setPending(rows.filter((r) => r.pending).length);
+    return rows;
   };
-  const connectCloudUser = async (id: string, email: string) => {
-    if (!supabase) return;
-    setUserId(id);
-    setCloudEmail(email);
-    setCloudError("");
-    if (!navigator.onLine) { setCloudStatus("offline"); return; }
-    try {
-      await queue;
-      const localRow = await db.snapshots.get("garage");
-      const localData = localRow?.data ?? seed();
-      const { data: remote, error: readError } = await supabase
-        .from("garage_snapshots")
-        .select("data, revision, updated_at")
-        .eq("user_id", id)
-        .maybeSingle();
-      if (readError) throw readError;
-      if (remote) {
-        cloudRevision.current = Number(remote.revision);
-        const restored = await restoreCloudFiles(checkBackup(remote.data));
-        if (!localRow) {
-          await saveGarage(restored);
-          setData(restored);
-          cloudReady.current = true;
-          setCloudStatus("synced");
-        } else if (JSON.stringify(localData) === JSON.stringify(restored)) {
-          cloudReady.current = true;
-          setCloudStatus("synced");
-        } else {
-          cloudReady.current = false;
-          setConflict(remote as CloudSnapshot);
-          setCloudStatus("conflict");
-        }
-      } else {
-        cloudRevision.current = 0;
-        await pushCloud(localData, 0, id);
-        cloudReady.current = true;
-        setCloudStatus("synced");
+  const syncNow = async () => {
+    if (!user.current || !supabase) return;
+    if (running.current) return running.current;
+    if (!navigator.onLine) {
+      setStatus("offline");
+      return;
+    }
+    const owner = user.current;
+    const work = async () => {
+      setStatus("syncing");
+      try {
+        await localQueue;
+        if ((await activeOwner()) !== owner) return;
+        await syncRecords(owner);
+        if (user.current !== owner) return;
+        setCloudError("");
+        const rows = await refresh();
+        setStatus(
+          rows.some((r) => r.conflict)
+            ? "conflict"
+            : rows.some((r) => r.pending)
+              ? "pending"
+              : "synced",
+        );
+      } catch (e) {
+        if (user.current !== owner) return;
+        const rows = await refresh();
+        setCloudError(
+          e && typeof e === "object" && "message" in e
+            ? String(e.message)
+            : "Could not sync. Your pending records are safe on this device.",
+        );
+        setStatus(
+          !navigator.onLine
+            ? "offline"
+            : rows.some((r) => r.conflict)
+              ? "conflict"
+              : "error",
+        );
       }
-    } catch (e) {
-      cloudReady.current = false;
-      setCloudError(e instanceof Error ? e.message : "Cloud sync failed.");
-      setCloudStatus("error");
+    };
+    const operation = (
+      "locks" in navigator
+        ? navigator.locks.request("my-garage-sync", work)
+        : work()
+    ).then(() => {});
+    running.current = operation;
+    try {
+      await operation;
+    } finally {
+      running.current = null;
     }
   };
   useEffect(() => {
-    if (!supabase) return;
     let active = true;
-    const applySession = (session: { user: { id: string; email?: string } } | null) => {
-      if (!active) return;
-      if (session) void connectCloudUser(session.user.id, session.user.email ?? "");
-      else {
-        cloudReady.current = false;
-        setUserId(null);
-        setCloudEmail("");
-        setCloudStatus("signed_out");
-      }
-    };
-    void supabase.auth.getSession().then(({ data: auth }) => applySession(auth.session));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => applySession(session));
-    return () => { active = false; listener.subscription.unsubscribe(); };
-  }, []);
-  useEffect(() => {
-    if (!data || !userId || !cloudReady.current || conflict || !supabase) return;
-    const timer = setTimeout(() => {
-      if (!navigator.onLine) { setCloudStatus("offline"); return; }
-      setCloudStatus("syncing");
-      void pushCloud(data, null, userId)
-        .then(() => { setCloudError(""); setCloudStatus("synced"); })
-        .catch((e: unknown) => {
-          const conflictError = typeof e === "object" && e !== null && "code" in e && e.code === "40001";
-          setCloudError(conflictError ? "A newer cloud copy was saved on another device." : e instanceof Error ? e.message : "Cloud sync failed.");
-          setCloudStatus(conflictError ? "conflict" : "error");
+    void refresh().catch(() =>
+      setError(
+        "Local records could not be opened. Retry without clearing your browser data.",
+      ),
+    );
+    if (!supabase) return;
+    let previous: string | null | undefined = undefined;
+    const apply = (
+      session: { user: { id: string; email?: string } } | null,
+    ) => {
+      if (active && !session && !navigator.onLine) {
+        void activeOwner().then(async (owner) => {
+          if (!active || owner === "local") return;
+          user.current = owner;
+          setEmail((await db.meta.get("email:" + owner))?.value ?? "");
+          setStatus("offline");
         });
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, [data, userId, conflict]);
+        return;
+      }
+      if (!active || previous === (session?.user.id ?? null)) return;
+      previous = session?.user.id ?? null;
+      user.current = previous;
+      setEmail(session?.user.email ?? "");
+      const job = localQueue.then(async () => {
+        await switchOwner(session?.user.id ?? "local");
+        if (session)
+          await db.meta.put({
+            id: "email:" + session.user.id,
+            value: session.user.email ?? "",
+          });
+        if (!active) return;
+        await refresh();
+        if (!session) setStatus("signed_out");
+      });
+      localQueue = job.catch(() => {});
+      void job
+        .then(() => {
+          if (active && session) void syncNow();
+        })
+        .catch((e) => setCloudError(String(e)));
+    };
+    void supabase.auth
+      .getSession()
+      .then(({ data: auth }) => apply(auth.session))
+      .catch(() => {
+        if (active)
+          setCloudError(
+            "Sign-in could not be refreshed. Local records remain saved.",
+          );
+      });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setTimeout(() => apply(session), 0);
+      },
+    );
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
   useEffect(() => {
     if (!data) return;
     document.documentElement.dataset.theme = data.settings.theme;
-    sendBrowserAlerts(data).catch(() => {});
-  }, [data]);
+    void sendBrowserAlerts(data).catch(() => {});
+    if (!pendingCount || !user.current) return;
+    if (!navigator.onLine) {
+      setStatus("offline");
+      return;
+    }
+    const timer = setTimeout(() => void syncNow(), 800);
+    return () => clearTimeout(timer);
+  }, [data, pendingCount]);
+  useEffect(() => {
+    const retry = () => void syncNow();
+    const focus = () => {
+      void refresh().then(retry);
+    };
+    const offline = () => {
+      if (user.current) setStatus("offline");
+    };
+    const interval = setInterval(retry, 30000);
+    window.addEventListener("online", retry);
+    window.addEventListener("offline", offline);
+    window.addEventListener("focus", focus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("online", retry);
+      window.removeEventListener("offline", offline);
+      window.removeEventListener("focus", focus);
+    };
+  }, []);
   useEffect(() => {
     if (!message) return;
-    const t = setTimeout(() => setMessage(""), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setMessage(""), 5000);
+    return () => clearTimeout(timer);
   }, [message]);
-  useEffect(() => {
-    if (!supabase) return;
-    const retryWhenOnline = () => {
-      if (!data || !userId || conflict) return;
-      if (!cloudReady.current) { void connectCloudUser(userId, cloudEmail); return; }
-      setCloudStatus("syncing");
-      void pushCloud(data, null, userId)
-        .then(() => { setCloudError(""); setCloudStatus("synced"); })
-        .catch((e: unknown) => {
-          const conflictError = typeof e === "object" && e !== null && "code" in e && e.code === "40001";
-          setCloudError(conflictError ? "A newer cloud copy was saved on another device." : e instanceof Error ? e.message : "Cloud sync failed.");
-          setCloudStatus(conflictError ? "conflict" : "error");
-        });
-    };
-    window.addEventListener("online", retryWhenOnline);
-    return () => window.removeEventListener("online", retryWhenOnline);
-  }, [data, userId, cloudEmail, conflict]);
-  useEffect(() => {
-    const onFocus = () => {
-      loadGarage()
-        .then((d) => {
-          setData(d);
-          sendBrowserAlerts(d).catch(() => {});
-        })
-        .catch(() => {});
-    };
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, []);
+  const update = (fn: (d: GarageData) => void) => {
+    const job = localQueue.then(async () => {
+      await db.transaction("rw", db.records, db.meta, async () => {
+        const draft = structuredClone(await loadGarage());
+        fn(draft);
+        await saveGarage(draft);
+      });
+      await refresh();
+    });
+    localQueue = job.catch((e) =>
+      setMessage(
+        e instanceof Error ? e.message : "Could not save on this device.",
+      ),
+    );
+    return job;
+  };
+  const replace = async (value: unknown) => {
+    const clean = checkBackup(value);
+    await update((d) => Object.assign(d, clean));
+  };
+  const reset = async () => {
+    await replace(seed());
+  };
+  const signIn = async (email: string) => {
+    if (!supabase) throw Error("Cloud sync is not configured.");
+    const { error: authError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: location.origin },
+    });
+    if (authError) throw authError;
+  };
+  const signOut = async () => {
+    user.current = null;
+    if (running.current) await running.current;
+    if (supabase) {
+      const { error: authError } = await supabase.auth.signOut();
+      if (authError) throw authError;
+    }
+    await localQueue;
+    await switchOwner("local");
+    await refresh();
+    setEmail("");
+    setStatus("signed_out");
+  };
+  const resolve = async (choice: "local" | "remote") => {
+    if (!user.current) return;
+    await resolveConflicts(user.current, choice);
+    await refresh();
+    await syncNow();
+  };
   if (error)
     return (
       <div className="loading-screen">
-        <h1>Let’s reopen your garage.</h1>
         <p>{error}</p>
         <button onClick={() => location.reload()}>Retry</button>
       </div>
@@ -219,91 +277,27 @@ export function GarageProvider({ children }: { children: ReactNode }) {
   if (!data)
     return (
       <div className="loading-screen">
-        <div className="garage-mark">
-          M<span>G</span>
-        </div>
-        <p>Opening your garage…</p>
+        <p>Opening your garage...</p>
       </div>
     );
-  const update = (fn: (d: GarageData) => void) => {
-    const job = queue.then(async () => {
-      const next = await db.transaction("rw", db.snapshots, async () => {
-        const draft = structuredClone(await loadGarage());
-        fn(draft);
-        await saveGarage(draft);
-        return draft;
-      });
-      setData(next);
-    });
-    queue = job.catch((e) => {
-      setMessage(
-        e instanceof Error
-          ? e.message
-          : "Could not save. Check available device storage and retry.",
-      );
-    });
-    return job;
-  };
-  const replace = async (value: unknown) => {
-    const next = checkBackup(value);
-    await queue;
-    await saveGarage(next);
-    setData(next);
-  };
-  const reset = async () => {
-    await queue;
-    await db.snapshots.clear();
-    setData(seed());
-    for (const k of Object.keys(localStorage))
-      if (k.startsWith("garage-")) localStorage.removeItem(k);
-  };
-  const signIn = async (email: string) => {
-    if (!supabase) throw Error("Add the Supabase project URL and publishable key to the app build first.");
-    if (!email.includes("@")) throw Error("Enter a valid email address.");
-    const { error: signInError } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    if (signInError) throw signInError;
-  };
-  const signOut = async () => {
-    if (!supabase) return;
-    cloudReady.current = false;
-    await supabase.auth.signOut();
-  };
-  const syncNow = async () => {
-    if (!data || !userId) throw Error("Sign in to sync your garage.");
-    if (conflict) throw Error("Choose which garage copy to keep before syncing.");
-    setCloudStatus("syncing");
-    await pushCloud(data, null, userId);
-    cloudReady.current = true;
-    setCloudStatus("synced");
-    setCloudError("");
-  };
-  const useCloudCopy = async () => {
-    if (!conflict) return;
-    const clean = await restoreCloudFiles(checkBackup(conflict.data));
-    await queue;
-    await saveGarage(clean);
-    setData(clean);
-    cloudRevision.current = conflict.revision;
-    setConflict(null);
-    cloudReady.current = true;
-    setCloudStatus("synced");
-  };
-  const uploadDeviceCopy = async () => {
-    if (!data || !conflict) return;
-    setCloudStatus("syncing");
-    if (!userId) throw Error("Sign in to sync your garage.");
-    await pushCloud(data, conflict.revision, userId);
-    setConflict(null);
-    cloudReady.current = true;
-    setCloudStatus("synced");
-    setCloudError("");
-  };
   return (
     <Context.Provider
-      value={{ data, update, replace, reset, toast: setMessage, cloudStatus, cloudEmail, cloudError, signIn, signOut, syncNow, useCloudCopy, uploadDeviceCopy }}
+      value={{
+        data,
+        update,
+        replace,
+        reset,
+        toast: setMessage,
+        cloudStatus,
+        cloudEmail,
+        cloudError,
+        pendingCount,
+        signIn,
+        signOut,
+        syncNow,
+        useCloudCopy: () => resolve("remote"),
+        uploadDeviceCopy: () => resolve("local"),
+      }}
     >
       {children}
       {message && (
@@ -314,8 +308,8 @@ export function GarageProvider({ children }: { children: ReactNode }) {
     </Context.Provider>
   );
 }
-export const useGarage = () => {
+export function useGarage() {
   const store = useContext(Context);
   if (!store) throw Error("Garage provider missing");
   return store;
-};
+}

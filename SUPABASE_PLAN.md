@@ -26,6 +26,6 @@ Files use deterministic content-hash paths and references in `documents.file_ref
 
 ## Build and checks
 
-Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in ignored `.env.local` / `.env.production.local` files, saved as UTF-8 without a BOM. The browser must never receive a Supabase secret or service-role key. Configure the deployed origin in Supabase Auth's redirect allowlist.
+The checked-in `src/config/supabase.public.json` supplies the public project URL and publishable key for Render builds, where ignored local env files are absent. Optional `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (or `VITE_SUPABASE_ANON_KEY`) override those defaults. The browser must never receive a Supabase secret or service-role key. Configure the deployed origin in Supabase Auth's redirect allowlist.
 
 `npm test` covers local persistence, migrations, pending changes, failed uploads, deletion retries, account isolation, concurrent edits, and lost responses. `supabase/tests/relational_sync.sql` contains PostgreSQL assertions for the local test fixture: imported records, account RLS, RPC ownership, anonymous denial, duplicate retries, and stale-edit rejection. A production account's authentication and Storage permissions still require a signed-in end-to-end check after applying the migration.

@@ -14,6 +14,9 @@ test("login stays readable and usable on small phones and desktop", async ({
       page.getByRole("heading", { name: "Welcome back." }),
     ).toBeVisible();
     await expect(page.getByLabel("Email address")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Sign in", exact: true }),
+    ).toBeEnabled();
     await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
     expect(
       await page.evaluate(

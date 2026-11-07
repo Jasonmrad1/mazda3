@@ -287,7 +287,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
             <button
               className="sign-in-submit"
               type="submit"
-              disabled={busy || !supabase}
+              disabled={busy}
             >
               {busy ? (
                 <LoaderCircle className="login-spinner" size={18} />

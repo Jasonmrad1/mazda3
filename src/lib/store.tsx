@@ -71,7 +71,21 @@ export function GarageProvider({ children }: { children: ReactNode }) {
         p_schema_version: value.schema,
         p_data: cloudData,
       });
-      if (saveError) throw saveError;
+      if (saveError) {
+        if (saveError.code === "40001") {
+          const { data: latest } = await supabase
+            .from("garage_snapshots")
+            .select("data, revision, updated_at")
+            .eq("user_id", id)
+            .maybeSingle();
+          if (latest) {
+            setConflict(latest as CloudSnapshot);
+            setCloudStatus("conflict");
+            setCloudError("A newer cloud copy was saved on another device.");
+          }
+        }
+        throw saveError;
+      }
       const saved = Array.isArray(result) ? result[0] : result;
       if (!saved?.revision) throw Error("Supabase did not confirm the saved garage.");
       cloudRevision.current = Number(saved.revision);
@@ -148,8 +162,9 @@ export function GarageProvider({ children }: { children: ReactNode }) {
       void pushCloud(data, null, userId)
         .then(() => { setCloudError(""); setCloudStatus("synced"); })
         .catch((e: unknown) => {
-          setCloudError(e instanceof Error ? e.message : "Cloud sync failed.");
-          setCloudStatus("error");
+          const conflictError = typeof e === "object" && e !== null && "code" in e && e.code === "40001";
+          setCloudError(conflictError ? "A newer cloud copy was saved on another device." : e instanceof Error ? e.message : "Cloud sync failed.");
+          setCloudStatus(conflictError ? "conflict" : "error");
         });
     }, 1200);
     return () => clearTimeout(timer);
@@ -173,8 +188,9 @@ export function GarageProvider({ children }: { children: ReactNode }) {
       void pushCloud(data, null, userId)
         .then(() => { setCloudError(""); setCloudStatus("synced"); })
         .catch((e: unknown) => {
-          setCloudError(e instanceof Error ? e.message : "Cloud sync failed.");
-          setCloudStatus("error");
+          const conflictError = typeof e === "object" && e !== null && "code" in e && e.code === "40001";
+          setCloudError(conflictError ? "A newer cloud copy was saved on another device." : e instanceof Error ? e.message : "Cloud sync failed.");
+          setCloudStatus(conflictError ? "conflict" : "error");
         });
     };
     window.addEventListener("online", retryWhenOnline);

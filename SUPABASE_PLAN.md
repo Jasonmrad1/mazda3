@@ -1,6 +1,6 @@
 # Record-based persistence and sync
 
-Apply `supabase/migrations/202611070002_relational_sync.sql` in Supabase SQL Editor after migration 001. It is safe to rerun. It imports legacy snapshots and disables their write RPC; the old backups are retained for recovery only.
+Apply `supabase/migrations/202611070002_relational_sync.sql` in Supabase SQL Editor after migration 001. It imports legacy snapshots and disables their write RPC. Then apply `202611070003_remove_legacy_snapshots.sql`: it checks that every legacy record ID exists in the new tables before dropping the old table and function. Do not replay migration 002 after completing cleanup 003.
 
 ## Database
 
@@ -20,7 +20,7 @@ Account caches are isolated. Signing out hides that account's local records whil
 
 ## Migration and files
 
-The first IndexedDB version-2 open converts the old local backup into individual pending records. The SQL migration copies the old cloud backup into the typed tables. Matching records reconcile without copying the complete garage; disagreements become per-record conflicts. Legacy backups are never automatically deleted.
+The IndexedDB version-2 upgrade converts the old local backup into individual pending records; version 3 removes that obsolete local store. Upgrades directly from version 1 execute the import first. The SQL migration copies the old cloud backup into the typed tables. Matching records reconcile without copying the complete garage; disagreements become per-record conflicts. Cloud backup removal is a separate guarded migration, 003.
 
 Files use deterministic content-hash paths and references in `documents.file_ref` / `vehicles.photo`. Downloaded files are cached locally for offline use. Removing a record syncs its tombstone; old file objects are retained for recovery rather than automatically garbage collected.
 

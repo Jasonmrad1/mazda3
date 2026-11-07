@@ -19,7 +19,6 @@ export interface LocalRecord {
 export const recordKey = (owner: string, entity: Entity, id: string) =>
   JSON.stringify([owner, entity, id]);
 export class GarageDB extends Dexie {
-  snapshots!: Table<{ id: string; data: GarageData }, string>;
   records!: Table<LocalRecord, string>;
   meta!: Table<{ id: string; value: string }, string>;
   constructor(name = "my-garage-v1") {
@@ -45,6 +44,8 @@ export class GarageDB extends Dexie {
               mutationId: crypto.randomUUID(),
             });
       });
+    // Version 2 performs the import first, including upgrades straight from v1.
+    this.version(3).stores({ snapshots: null });
   }
 }
 export const db = new GarageDB();

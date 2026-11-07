@@ -223,6 +223,6 @@ describe("durable row sync", () => {
     await db.open();
     expect((await loadGarage(db)).vehicle.vin).toBe("LEGACY");
     expect((await db.records.toArray()).every((r) => r.pending)).toBe(true);
-    expect(await db.snapshots.get("garage")).toBeDefined();
+    expect(db.tables.some((table) => table.name === "snapshots")).toBe(false);
   });
 });

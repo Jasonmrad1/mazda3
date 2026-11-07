@@ -35,7 +35,7 @@ export function Fuel({ open }: { open: OpenModal }) {
   const { data } = useGarage();
   const [unit, setUnit] = useState("MPG (US)"),
     [currency, setCurrency] = useState("USD"),
-    [officialRange, setOfficialRange] = useState("12M"),
+    [officialRange, setOfficialRange] = useState("7D"),
     [iptRate, setIptRate] = useState<{ date: string; lbpPer20L: number } | null>(null);
   useEffect(() => {
     const controller = new AbortController();
@@ -85,6 +85,7 @@ export function Fuel({ open }: { open: OpenModal }) {
     .map((fill) => ({ label: fmtDate(fill.date).split(" ").slice(0, 2).join(" "), value: Number((fill.cost! / fill.liters).toFixed(3)) }));
   const latestArchive = fuelPriceHistory.records.at(-1)!;
   const latestRate = iptRate ?? latestArchive;
+  const litersForTenDollars = (10 * 89750 * 20) / latestRate.lbpPer20L;
   const archiveWithLiveRate = iptRate && iptRate.date >= latestArchive.date
     ? [...fuelPriceHistory.records.filter((record) => record.date !== iptRate.date), iptRate].sort((a, b) => a.date.localeCompare(b.date))
     : fuelPriceHistory.records;
@@ -286,6 +287,14 @@ export function Fuel({ open }: { open: OpenModal }) {
           <a className="text-button official-price-source" href={fuelPriceHistory.sourceUrl} target="_blank" rel="noreferrer">TheFuelPrice historical archive <ArrowUpRight size={15} /></a>
           <a className="text-button official-price-source" href="https://www.energyandwater.gov.lb/ar/prices?type=1" target="_blank" rel="noreferrer">Ministry schedule <ArrowUpRight size={15} /></a>
         </div>
+      </section>
+      <section className="panel fuel-budget-card">
+        <div>
+          <span className="eyebrow">AT THE CURRENT REFERENCE PRICE</span>
+          <h2>$10 gets about {litersForTenDollars.toFixed(2)} L</h2>
+          <p className="fuel-price-caption">Estimate based on {latestRate.lbpPer20L.toLocaleString("en-US")} LBP per 20 L ({officialDate}) and 89,750 LBP per USD. Exchange rate is configurable in your garage settings; station prices may differ.</p>
+        </div>
+        <button className="text-button" onClick={() => open({ type: "fuel" })}>Log fuel <ArrowUpRight size={15} /></button>
       </section>
       <section className="panel fuel-price-history">
         <div className="fuel-price-heading">

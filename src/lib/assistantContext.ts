@@ -1,6 +1,7 @@
 import type { GarageData } from "./types";
 import { articles } from "../data/knowledge";
 import { careTasks } from "../data/maintenance";
+import fuelPriceHistory from "../data/lebanonFuelHistory.json";
 import {
   deadline,
   fuelMeasurements,
@@ -139,6 +140,17 @@ export function buildAssistantContext(data: GarageData, sources: Citation[]) {
       measuredCycles: measurements.length,
       averageLitersPer100Km: average,
       averageMpgUS: average === null ? null : 235.214583 / average,
+      lebanon95OctaneReference: {
+        source: fuelPriceHistory.liveSource,
+        sourceUrl: fuelPriceHistory.liveSourceUrl,
+        archiveSource: fuelPriceHistory.source,
+        archiveSourceUrl: fuelPriceHistory.sourceUrl,
+        unit: fuelPriceHistory.unit,
+        latestPublishedDate: fuelPriceHistory.latestArchiveDate,
+        latestArchivedRate: fuelPriceHistory.records.at(-1) ?? null,
+        usdToLbpReference: 89750,
+        note: "Dated app reference archive, not a live station quote. Use the latest live price if it is explicitly supplied. USD estimate uses the stated 89,750 LBP/USD reference rate.",
+      },
     },
     tires: data.tires,
     reminders: bounded(data.reminders),

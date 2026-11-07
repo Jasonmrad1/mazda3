@@ -16,6 +16,7 @@ import "./premium.css";
 import "./interaction.css";
 import "./showroom.css";
 import "./collection.css";
+import "./auth.css";
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { error: boolean }

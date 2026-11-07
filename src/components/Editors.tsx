@@ -9,6 +9,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { Modal, Field, Note, type ModalState } from "./ui";
+import { CloudSyncSettings } from "./CloudSyncSettings";
 import { useGarage } from "../lib/store";
 import {
   id,
@@ -532,6 +533,7 @@ export function Editor({
     >
       {state.type === "settings" ? (
         <div className="settings-content">
+          <CloudSyncSettings />
           <div className="setting-row">
             <div>
               <h3>Appearance</h3>

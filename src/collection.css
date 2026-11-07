@@ -153,6 +153,22 @@ dialog.modal[open]::backdrop { animation: backdropEnter .28s ease both; }
 .toast, .offline-banner, .app-update-banner { animation: garageContentEnter .34s cubic-bezier(.2,.75,.25,1) both; }
 .notification-button i { animation: reminderGlow 2.8s ease-in-out infinite; }
 .chart-tooltip, .recharts-tooltip-wrapper { transition: opacity .18s ease; }
+.cloud-sync-settings { padding:19px 0 20px; margin-bottom:8px; border-block:1px solid var(--border); }
+.cloud-sync-heading { display:flex; align-items:center; gap:12px; }
+.cloud-sync-mark { width:34px; height:34px; display:grid; place-items:center; color:#d6d8da; background:#ffffff0a; border:1px solid var(--border); }
+.cloud-sync-heading h3 { margin:0 0 4px; color:var(--text); font-size:12px; font-weight:500; }
+.cloud-sync-heading p,.cloud-sync-account>p { margin:0; color:var(--muted); font-size:9px; line-height:1.6; }
+.cloud-sync-heading>svg:last-child { margin-left:auto; color:#8a9b8f; }
+.cloud-sync-form { display:flex; align-items:flex-end; gap:10px; margin-top:16px; }
+.cloud-sync-form .field { flex:1; }
+.cloud-sync-form .button { white-space:nowrap; }
+.cloud-sync-account { margin-top:14px; }
+.cloud-sync-account strong { color:var(--text); font-weight:500; }
+.cloud-sync-actions,.cloud-sync-conflict { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:12px; }
+.cloud-sync-conflict>p { flex-basis:100%; margin:0; color:var(--muted); font-size:9px; line-height:1.7; }
+.cloud-sync-message { margin:10px 0 0; color:var(--silver); font-size:9px; line-height:1.6; overflow-wrap:anywhere; }
+.cloud-sync-footnote { margin:12px 0 0; color:var(--muted); font-size:8px; line-height:1.7; }
+@media(max-width:520px) { .cloud-sync-form { align-items:stretch; flex-direction:column; } .cloud-sync-form .button { width:100%; } }
 .studio-source > span > a { display:none; }
 .studio-credit { position:relative; z-index:12; }
 .studio-credit > summary { list-style:none; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }

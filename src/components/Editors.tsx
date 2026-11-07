@@ -75,19 +75,28 @@ function synchronizeFuelPrice(changed: HTMLInputElement) {
   if (!form) return;
   const liters = form.elements.namedItem("liters") as HTMLInputElement | null;
   const total = form.elements.namedItem("cost") as HTMLInputElement | null;
-  const perLiter = form.elements.namedItem("pricePerLiter") as HTMLInputElement | null;
-  const volume = Number(liters?.value), amount = Number(total?.value), rate = Number(perLiter?.value);
+  const perLiter = form.elements.namedItem(
+    "pricePerLiter",
+  ) as HTMLInputElement | null;
+  const volume = Number(liters?.value),
+    amount = Number(total?.value),
+    rate = Number(perLiter?.value);
   if (changed.name === "cost" && total?.value && rate > 0) {
     if (liters) liters.value = (amount / rate).toFixed(2);
   } else if (changed.name === "pricePerLiter" && rate > 0 && total?.value) {
     if (liters) liters.value = (amount / rate).toFixed(2);
-  } else if (changed.name === "pricePerLiter" && perLiter?.value && volume > 0) {
+  } else if (
+    changed.name === "pricePerLiter" &&
+    perLiter?.value &&
+    volume > 0
+  ) {
     if (total) total.value = (rate * volume).toFixed(2);
   } else if (changed.name === "cost" && total?.value && volume > 0) {
     if (perLiter) perLiter.value = (amount / volume).toFixed(3);
   } else if (changed.name === "liters") {
     if (perLiter?.value && total) total.value = (rate * volume).toFixed(2);
-    else if (total?.value && perLiter) perLiter.value = (amount / volume).toFixed(3);
+    else if (total?.value && perLiter)
+      perLiter.value = (amount / volume).toFixed(3);
   }
 }
 
@@ -171,7 +180,7 @@ export function Editor({
         });
         setDocIds((v) => [...v, doc.id]);
       }
-      toast("Files saved privately on this device");
+      toast("Files saved on this device and queued for private sync");
     } catch (e) {
       setError(String(e));
     } finally {
@@ -276,14 +285,21 @@ export function Editor({
           "price per liter",
           true,
         );
-        if (liters === null && cost !== null && perLiter !== null && perLiter > 0)
+        if (
+          liters === null &&
+          cost !== null &&
+          perLiter !== null &&
+          perLiter > 0
+        )
           liters = Number((cost / perLiter).toFixed(2));
         if (cost === null && liters !== null && perLiter !== null)
           cost = Number((perLiter * liters).toFixed(2));
         if (perLiter === null && cost !== null && liters !== null && liters > 0)
           cost = Number(cost.toFixed(2));
         if (liters === null)
-          throw Error("Enter liters, or enter both the amount paid and price per liter to calculate liters.");
+          throw Error(
+            "Enter liters, or enter both the amount paid and price per liter to calculate liters.",
+          );
         if (liters <= 0) throw Error("Liters must be greater than zero.");
         if (
           cost !== null &&
@@ -665,8 +681,9 @@ export function Editor({
             <div>
               <h3>Storage protection</h3>
               <p>
-                Records stay in this browser’s IndexedDB. No account or cloud
-                sync. Anyone using this browser profile can access them.
+                Records save on this device first, then sync to your private
+                account. Pending changes need to sync before clearing browser
+                data.
               </p>
             </div>
             <ShieldCheck size={24} />
@@ -688,33 +705,35 @@ export function Editor({
             Request persistent storage
           </button>
           <div className="danger-zone">
-            <h3>Delete all garage data</h3>
+            <h3>Reset garage records</h3>
             <p>
-              Removes your records, VIN, uploaded photos and documents from this
-              browser.
+              Resets your profile and removes recorded history from this device
+              and your account after syncing. Stored file copies are not erased.
             </p>
             <button
               className="button danger"
               onClick={() => {
                 if (
                   prompt(
-                    "Type DELETE to permanently remove all local garage records.",
-                  ) === "DELETE"
+                    "Type RESET to reset this garage. Removed records will also sync to your account. Stored file copies are not erased.",
+                  ) === "RESET"
                 )
-                  void run(reset, "Garage data deleted");
+                  void run(
+                    reset,
+                    "Garage reset saved; account changes queued for sync",
+                  );
               }}
             >
               <Trash2 size={15} />
-              Delete all data
+              Reset records
             </button>
           </div>
         </div>
       ) : state.type === "documents" ? (
         <div>
           <Note>
-            Private to this browser profile. Imported PDFs are indexed
-            on-device. Image-only scans need OCR before their text can be
-            searched. No navigation manual was supplied.
+            Files sync privately to your account and stay available offline on
+            this device. Scanned PDFs need selectable text or OCR for search.
           </Note>
           <label className="upload-area">
             <Upload size={24} />
@@ -989,7 +1008,13 @@ export function Editor({
                       type="number"
                       min="0"
                       step="0.001"
-                      defaultValue={oldFuel?.cost !== null && oldFuel?.cost !== undefined && oldFuel.liters ? (oldFuel.cost / oldFuel.liters).toFixed(3) : ""}
+                      defaultValue={
+                        oldFuel?.cost !== null &&
+                        oldFuel?.cost !== undefined &&
+                        oldFuel.liters
+                          ? (oldFuel.cost / oldFuel.liters).toFixed(3)
+                          : ""
+                      }
                       placeholder="Calculated from total"
                       onChange={(e) => synchronizeFuelPrice(e.currentTarget)}
                     />
@@ -1004,7 +1029,11 @@ export function Editor({
                     </select>
                   </Field>
                 </div>
-                <p className="form-hint">Enter any two: liters, amount paid, and price per liter. The third value fills in automatically. For an automatic liters calculation, use the actual price charged at the pump.</p>
+                <p className="form-hint">
+                  Enter any two: liters, amount paid, and price per liter. The
+                  third value fills in automatically. For an automatic liters
+                  calculation, use the actual price charged at the pump.
+                </p>
                 <div className="form-grid">
                   <Field label="Driving conditions">
                     <select
@@ -1240,7 +1269,7 @@ export function Editor({
               </div>
               <Field
                 label="VIN (optional, private)"
-                hint="Stored only in this browser profile. Excluded from exports."
+                hint="Private to your account. Excluded from exports and AI requests."
               >
                 <input
                   name="vin"

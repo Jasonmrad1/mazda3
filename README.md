@@ -69,7 +69,7 @@ The included `public/manuals/2019-mazda3-maintenance.pdf` is Mazda's [2019 Mazda
 
 ## Offline, privacy and reminder limits
 
-IndexedDB (Dexie) stores records and uploaded files in the current browser profile, with writes completed before UI success. No cloud account, analytics, telemetry or synchronization is included. Another person using the same browser profile can access the data. VIN is excluded from all exports; photos and documents are included in JSON backups, which should be kept private. Browser/device backups and OS protection remain the owner's responsibility. Use the Settings action to request persistent storage and download regular backups; browsers can otherwise evict local storage. Complete deletion clears all local garage records, uploaded assets, VIN and notification-deduplication keys, leaving bundled app/reference assets available.
+IndexedDB (Dexie) stores individual records and files locally. Each edit or deletion is flagged pending until the account-scoped Supabase row is acknowledged. Sync retries on reconnect, launch, focus, and periodically while the app is open. Private Supabase Storage holds uploaded photos and PDFs; the browser keeps downloaded copies for offline use. VIN is excluded from exports and AI context. AI conversation messages are currently session-only. The record-reset action syncs record removals but does not erase old Storage file objects. See SUPABASE_PLAN.md for the precise data and deletion behavior.
 
 The production service worker caches the app, bundled imagery/fonts/PDF and PDF/search/export modules for offline use after the first successful online load. Dev mode does not register a service worker. App installation requires HTTPS or localhost; iOS uses Share → Add to Home Screen.
 

@@ -697,12 +697,12 @@ export function Garage({
               onAction={() => open({ type: "documents" })}
             >
               Keep invoices, insurance, registration and manuals together. Files
-              stay on this device.
+              sync to your private account and remain available offline here.
             </Empty>
           )}
           <Note>
-            Local storage is private to this browser profile, not a locked
-            account. Export backups and keep your device secure.
+            Your account keeps a synced copy. This device keeps an offline copy;
+            export a backup when needed and keep your device secure.
           </Note>
         </section>
       )}
